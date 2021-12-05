@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+      integrity="sha512-wnea99uKIC3TJF7v4eKk4Y+lMz2Mklv18+r4na2Gn1abDRPPOeef95xTzdwGD9e6zXJBteMIhZ1+68QC5byJZw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+  <body>
+    <div class="w-full m-0 flex justify-center items-center h-screen">
+      <div>
+        <form action="/">
+          <div class="py-2">
+            <span>ip位置:</span>
+            <input
+              type="number"
+              class="
+                number
+                one
+                rounded-md
+                border-gray-500 border-opacity-100 border
+              "
+              maxlength="3"
+              max="255"
+              min="0"
+            />
+            <span>.</span>
+            <input
+              type="number"
+              class="
+                number
+                two
+                rounded-md
+                border-gray-500 border-opacity-100 border
+              "
+              maxlength="3"
+              max="255"
+              min="0"
+            />
+            <span>.</span>
+            <input
+              type="number"
+              class="
+                number
+                three
+                rounded-md
+                border-gray-500 border-opacity-100 border
+              "
+              maxlength="3"
+              max="255"
+              min="0"
+            />
+            <span>.</span>
+            <input
+              type="number"
+              class="
+                number
+                four
+                rounded-md
+                border-gray-500 border-opacity-100 border
+              "
+              maxlength="3"
+              max="255"
+              min="0"
+            />
+          </div>
+          <div class="py-2">
+            <span>port:</span>
+            <input
+              type="number"
+              class="
+                number
+                rounded-md
+                border-gray-500 border-opacity-100 border
+              "
+              max="65534"
+              min="0"
+              value="502"
+              maxlength="5"
+              placeholder="502"
+              id="port"
+            />
+            <button
+              type="submit"
+              class="bg-blue-500 rounded-md px-2 py-1 text-white"
+              onclick="pout(event)"
+            >
+              送出
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+  <script>
+    document.querySelectorAll(".number").forEach(function (el) {
+      function onInputNum(e) {
+        if (
+          (e.which != 8 && e.which != 0 && e.which < 48 && e.which != 13) ||
+          e.which > 57
+        ) {
+          e.preventDefault();
+        }
+
+        if (this.value.length >= this.maxLength - 1) {
+          currerentTag = this;
+          while (currerentTag.nextElementSibling) {
+            if (
+              currerentTag.nextElementSibling.tagName.toLowerCase() ===
+                "input" ||
+              currerentTag.nextElementSibling.tagName.toLowerCase() === "button"
+            ) {
+              currerentTag = currerentTag.nextElementSibling;
+
+              window.setTimeout(() => currerentTag.focus(), 0);
+              break;
+            } else {
+              currerentTag = currerentTag.nextElementSibling;
+              console.log("the next is ", currerentTag);
+            }
+          }
+        }
+      }
+
+      el.addEventListener("keypress", onInputNum.bind(el));
+    });
+  </script>
+</html>
