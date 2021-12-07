@@ -12,12 +12,16 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
   </head>
   <body>
-    <div class="w-full m-0 flex justify-center items-center h-screen">
+    <div class="w-full m-0 flex justify-center items-center h-screen" id="app">
       <div>
         <form action="/">
           <div class="py-2">
+            <input type="radio" id="UseIP" name="drone" value="UseIP" />
+            <label for="UseIP">Use IP</label>
+            <br />
             <span>ip位置:</span>
             <input
               type="number"
@@ -71,6 +75,21 @@
               min="0"
             />
           </div>
+          <div>
+            <input type="radio" id="UseIP" name="drone" value="UseIP" />
+            <label for="UseIP">Use IP</label>
+            <br />
+            <span>Domain Name: </span>
+            <input
+              type="text"
+              class="
+                number
+                two
+                rounded-md
+                border-gray-500 border-opacity-100 border
+              "
+            />
+          </div>
           <div class="py-2">
             <span>port:</span>
             <input
@@ -111,19 +130,40 @@
 
         if (this.value.length >= this.maxLength - 1) {
           currerentTag = this;
-          while (currerentTag.nextElementSibling) {
+          while (
+            currerentTag.nextElementSibling ||
+            currerentTag.parentElement.nextElementSibling
+          ) {
+            // console.log(currerentTag.nextElementSibling.tagName.toLowerCase());
             if (
-              currerentTag.nextElementSibling.tagName.toLowerCase() ===
+              currerentTag.nextElementSibling &&
+              (currerentTag.nextElementSibling.tagName.toLowerCase() ===
                 "input" ||
-              currerentTag.nextElementSibling.tagName.toLowerCase() === "button"
+                currerentTag.nextElementSibling.tagName.toLowerCase() ===
+                  "button")
             ) {
+              console.log("inhere");
               currerentTag = currerentTag.nextElementSibling;
+
+              window.setTimeout(() => currerentTag.focus(), 0);
+              break;
+            } else if (
+              !currerentTag.nextElementSibling &&
+              currerentTag.parentElement.nextElementSibling.querySelector(
+                "input"
+              )
+            ) {
+              console.log("OMG");
+              currerentTag =
+                currerentTag.parentElement.nextElementSibling.querySelector(
+                  "input"
+                );
 
               window.setTimeout(() => currerentTag.focus(), 0);
               break;
             } else {
               currerentTag = currerentTag.nextElementSibling;
-              console.log("the next is ", currerentTag);
+              console.log("next is ", currerentTag);
             }
           }
         }
@@ -131,5 +171,13 @@
 
       el.addEventListener("keypress", onInputNum.bind(el));
     });
+
+    // let vue = new Vue({
+    //   el: "#app",
+    //   data: {
+    //     useDomain: false,
+    //   },
+    //   methods: {},
+    // });
   </script>
 </html>
