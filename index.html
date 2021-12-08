@@ -18,83 +18,94 @@
     <div class="w-full m-0 flex justify-center items-center h-screen" id="app">
       <div>
         <form action="/">
-          <div class="py-2">
-            <input type="radio" id="UseIP" name="drone" value="UseIP" />
-            <label for="UseIP">Use IP</label>
-            <br />
-            <span>ip位置:</span>
-            <input
-              type="number"
-              class="
-                number
-                one
-                rounded-md
-                border-gray-500 border-opacity-100 border
-              "
-              maxlength="3"
-              max="255"
-              min="0"
-            />
-            <span>.</span>
-            <input
-              type="number"
-              class="
-                number
-                two
-                rounded-md
-                border-gray-500 border-opacity-100 border
-              "
-              maxlength="3"
-              max="255"
-              min="0"
-            />
-            <span>.</span>
-            <input
-              type="number"
-              class="
-                number
-                three
-                rounded-md
-                border-gray-500 border-opacity-100 border
-              "
-              maxlength="3"
-              max="255"
-              min="0"
-            />
-            <span>.</span>
-            <input
-              type="number"
-              class="
-                number
-                four
-                rounded-md
-                border-gray-500 border-opacity-100 border
-              "
-              maxlength="3"
-              max="255"
-              min="0"
-            />
-          </div>
-          <div>
-            <input type="radio" id="UseIP" name="drone" value="UseIP" />
-            <label for="UseIP">Use IP</label>
-            <br />
-            <span>Domain Name: </span>
-            <input
-              type="text"
-              class="
-                number
-                two
-                rounded-md
-                border-gray-500 border-opacity-100 border
-              "
-            />
-          </div>
-          <div class="py-2">
+            <div>
+              <div id="IPSec" class="py-2">
+                <input type="radio" id="UseIP" name="drone" value="UseIP" />
+                <label for="UseIP">Use IP</label>
+                <br />
+                <span>ip位置:</span>
+                <div>            <input
+                  type="number"
+                  class="
+                  px-1
+                    number
+                    one
+                    rounded-md
+                    border-gray-500 border-opacity-100 border
+                  "
+                  maxlength="3"
+                  max="255"
+                  min="0"
+                />
+                <span>.</span>
+                <input
+                  type="number"
+                  class="
+                  px-1
+                    number
+                    two
+                    rounded-md
+                    border-gray-500 border-opacity-100 border
+                  "
+                  maxlength="3"
+                  max="255"
+                  min="0"
+                />
+                <span>.</span>
+                <input
+                  type="number"
+                  class="
+                  px-1
+                    number
+                    three
+                    rounded-md
+                    border-gray-500 border-opacity-100 border
+                  "
+                  maxlength="3"
+                  max="255"
+                  min="0"
+                />
+                <span>.</span>
+                <input
+                  type="number"
+                  class="
+                  px-1
+                    number
+                    four
+                    rounded-md
+                    border-gray-500 border-opacity-100 border
+                  "
+                  maxlength="3"
+                  max="255"
+                  min="0"
+                /></div>
+              </div>
+              <div id="DomainSec" class="py-2">
+                <input type="radio" id="UseIP" name="drone" value="UseIP" />
+                <label for="UseIP">Use IP</label>
+                <br />
+                <span>Domain Name: </span>
+                <div>
+                  
+                  <input
+                    type="text"
+                    class="
+                    px-1
+                      number
+                      two
+                      rounded-md
+                      border-gray-500 border-opacity-100 border
+                    "
+                  />
+                </div>
+              </div>
+            </div>
+          <div id="PortSec" class="py-2">
             <span>port:</span>
             <input
               type="number"
               class="
+              px-1
                 number
                 rounded-md
                 border-gray-500 border-opacity-100 border
@@ -121,6 +132,7 @@
   <script>
     document.querySelectorAll(".number").forEach(function (el) {
       function onInputNum(e) {
+
         if (
           (e.which != 8 && e.which != 0 && e.which < 48 && e.which != 13) ||
           e.which > 57
@@ -130,11 +142,12 @@
 
         if (this.value.length >= this.maxLength - 1) {
           currerentTag = this;
+
           while (
             currerentTag.nextElementSibling ||
-            currerentTag.parentElement.nextElementSibling
+            currerentTag.parentElement.parentElement.nextElementSibling
           ) {
-            // console.log(currerentTag.nextElementSibling.tagName.toLowerCase());
+  
             if (
               currerentTag.nextElementSibling &&
               (currerentTag.nextElementSibling.tagName.toLowerCase() ===
@@ -142,28 +155,25 @@
                 currerentTag.nextElementSibling.tagName.toLowerCase() ===
                   "button")
             ) {
-              console.log("inhere");
               currerentTag = currerentTag.nextElementSibling;
 
               window.setTimeout(() => currerentTag.focus(), 0);
               break;
             } else if (
               !currerentTag.nextElementSibling &&
-              currerentTag.parentElement.nextElementSibling.querySelector(
-                "input"
+              !currerentTag.parentElement.parentElement.nextElementSibling.querySelector(
+                "#DomainSec"
               )
             ) {
-              console.log("OMG");
-              currerentTag =
-                currerentTag.parentElement.nextElementSibling.querySelector(
-                  "input"
-                );
+                  currerentTag =
+                  currerentTag.parentElement.parentElement.parentElement.nextElementSibling.querySelector(
+                    "input"
+                  );
 
               window.setTimeout(() => currerentTag.focus(), 0);
               break;
             } else {
               currerentTag = currerentTag.nextElementSibling;
-              console.log("next is ", currerentTag);
             }
           }
         }
@@ -172,12 +182,6 @@
       el.addEventListener("keypress", onInputNum.bind(el));
     });
 
-    // let vue = new Vue({
-    //   el: "#app",
-    //   data: {
-    //     useDomain: false,
-    //   },
-    //   methods: {},
-    // });
+
   </script>
 </html>
