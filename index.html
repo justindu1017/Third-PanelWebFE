@@ -18,16 +18,17 @@
     <div class="w-full m-0 flex justify-center items-center h-screen" id="app">
       <div>
         <form action="/">
-            <div>
-              <div id="IPSec" class="py-2">
-                <input type="radio" id="UseIP" name="drone" value="UseIP" />
-                <label for="UseIP">Use IP</label>
-                <br />
-                <span>ip位置:</span>
-                <div>            <input
+          <div>
+            <div id="IPSec" class="py-2">
+              <input type="radio" id="UseIP" name="drone" value="UseIP" />
+              <label for="UseIP">Use IP</label>
+              <br />
+              <span>ip位置:</span>
+              <div>
+                <input
                   type="number"
                   class="
-                  px-1
+                    px-1
                     number
                     one
                     rounded-md
@@ -41,7 +42,7 @@
                 <input
                   type="number"
                   class="
-                  px-1
+                    px-1
                     number
                     two
                     rounded-md
@@ -55,7 +56,7 @@
                 <input
                   type="number"
                   class="
-                  px-1
+                    px-1
                     number
                     three
                     rounded-md
@@ -69,7 +70,7 @@
                 <input
                   type="number"
                   class="
-                  px-1
+                    px-1
                     number
                     four
                     rounded-md
@@ -78,34 +79,34 @@
                   maxlength="3"
                   max="255"
                   min="0"
-                /></div>
-              </div>
-              <div id="DomainSec" class="py-2">
-                <input type="radio" id="UseIP" name="drone" value="UseIP" />
-                <label for="UseIP">Use IP</label>
-                <br />
-                <span>Domain Name: </span>
-                <div>
-                  
-                  <input
-                    type="text"
-                    class="
-                    px-1
-                      number
-                      two
-                      rounded-md
-                      border-gray-500 border-opacity-100 border
-                    "
-                  />
-                </div>
+                />
               </div>
             </div>
+            <div id="DomainSec" class="py-2">
+              <input type="radio" id="UseIP" name="drone" value="UseIP" />
+              <label for="UseIP">Use IP</label>
+              <br />
+              <span>Domain Name: </span>
+              <div>
+                <input
+                  type="text"
+                  class="
+                    px-1
+                    number
+                    two
+                    rounded-md
+                    border-gray-500 border-opacity-100 border
+                  "
+                />
+              </div>
+            </div>
+          </div>
           <div id="PortSec" class="py-2">
             <span>port:</span>
             <input
               type="number"
               class="
-              px-1
+                px-1
                 number
                 rounded-md
                 border-gray-500 border-opacity-100 border
@@ -132,7 +133,6 @@
   <script>
     document.querySelectorAll(".number").forEach(function (el) {
       function onInputNum(e) {
-
         if (
           (e.which != 8 && e.which != 0 && e.which < 48 && e.which != 13) ||
           e.which > 57
@@ -147,7 +147,6 @@
             currerentTag.nextElementSibling ||
             currerentTag.parentElement.parentElement.nextElementSibling
           ) {
-  
             if (
               currerentTag.nextElementSibling &&
               (currerentTag.nextElementSibling.tagName.toLowerCase() ===
@@ -165,11 +164,10 @@
                 "#DomainSec"
               )
             ) {
-                  currerentTag =
-                  currerentTag.parentElement.parentElement.parentElement.nextElementSibling.querySelector(
-                    "input"
-                  );
-
+              currerentTag =
+                currerentTag.parentElement.parentElement.parentElement.nextElementSibling.querySelector(
+                  "input"
+                );
               window.setTimeout(() => currerentTag.focus(), 0);
               break;
             } else {
@@ -181,7 +179,5 @@
 
       el.addEventListener("keypress", onInputNum.bind(el));
     });
-
-
   </script>
 </html>

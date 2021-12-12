@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.cssXXX"
+      integrity="sha512-wnea99uKIC3TJF7v4eKk4Y+lMz2Mklv18+r4na2Gn1abDRPPOeef95xTzdwGD9e6zXJBteMIhZ1+68QC5byJZw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <labelname title="ip address" :inputs="input_boxs"></labelname>
+      <labelname title="domain name"></labelname>
+    </div>
+    <script src="https://unpkg.com/vue@next"></script>
+
+    <script>
+      //   Vue.config.devtools = true;
+      let app = Vue.createApp({
+        data() {
+          return {
+            input_boxs: [
+              { id: "id1" },
+              { id: "id2" },
+              { id: "id3" },
+              { id: "id4" },
+            ],
+          };
+        },
+      });
+
+      app.component("labelname", {
+        template: `
+            <span>{{title}}</span>
+
+            <template v-for="(input, index) in inputs">            
+                <input />
+                <span v-if="!(index == inputs.length -1)">.</span>
+            </template>
+
+
+          `,
+        props: ["title", "inputs"],
+        data() {
+          return {
+            // inputs: this.inputs,
+          };
+        },
+      });
+
+      app.mount("#app");
+    </script>
+  </body>
+</html>
