@@ -17,17 +17,25 @@
   <body>
     <div class="w-full m-0 flex justify-center items-center h-screen" id="app">
       <div>
-        <form action="/">
+        <form action="/post" method="post">
           <div>
             <div id="IPSec" class="py-2">
-              <input type="radio" id="UseIP" name="drone" value="UseIP" />
+              <input
+                type="radio"
+                id="UseIP"
+                name="drone"
+                value="UseIP"
+                checked
+              />
               <label for="UseIP">Use IP</label>
               <br />
-              <span>ip位置:</span>
+              <span>ip address:</span>
               <div>
                 <input
+                  id="ip1"
                   type="number"
                   class="
+                    ipClass
                     px-1
                     number
                     one
@@ -37,11 +45,14 @@
                   maxlength="3"
                   max="255"
                   min="0"
+                  name="ip1"
                 />
                 <span>.</span>
                 <input
+                  id="ip2"
                   type="number"
                   class="
+                    ipClass
                     px-1
                     number
                     two
@@ -51,11 +62,14 @@
                   maxlength="3"
                   max="255"
                   min="0"
+                  name="ip2"
                 />
                 <span>.</span>
                 <input
+                  id="ip3"
                   type="number"
                   class="
+                    ipClass
                     px-1
                     number
                     three
@@ -65,11 +79,14 @@
                   maxlength="3"
                   max="255"
                   min="0"
+                  name="ip3"
                 />
                 <span>.</span>
                 <input
+                  id="ip4"
                   type="number"
                   class="
+                    ipClass
                     px-1
                     number
                     four
@@ -79,16 +96,23 @@
                   maxlength="3"
                   max="255"
                   min="0"
+                  name="ip4"
                 />
               </div>
             </div>
             <div id="DomainSec" class="py-2">
-              <input type="radio" id="UseIP" name="drone" value="UseIP" />
-              <label for="UseIP">Use IP</label>
+              <input
+                type="radio"
+                id="UseDomain"
+                name="drone"
+                value="UseDomain"
+              />
+              <label for="UseDomain">Use Domain</label>
               <br />
               <span>Domain Name: </span>
               <div>
                 <input
+                  id="domainName"
                   type="text"
                   class="
                     px-1
@@ -97,6 +121,8 @@
                     rounded-md
                     border-gray-500 border-opacity-100 border
                   "
+                  name="domainName"
+                  disabled
                 />
               </div>
             </div>
@@ -117,6 +143,7 @@
               maxlength="5"
               placeholder="502"
               id="port"
+              name="port"
             />
             <button
               type="submit"
@@ -131,15 +158,33 @@
     </div>
   </body>
   <script>
+    document.querySelector("#UseIP").addEventListener("change", () => {
+      document.querySelector("#domainName").value = "";
+      document.querySelector("#domainName").disabled = true;
+      for (const i of document.querySelectorAll(".ipClass")) {
+        i.disabled = false;
+      }
+    });
+
+    document.querySelector("#UseDomain").addEventListener("change", () => {
+      document.querySelector("#domainName").disabled = false;
+      for (const i of document.querySelectorAll(".ipClass")) {
+        i.value = "";
+        i.disabled = true;
+      }
+    });
+
     document.querySelectorAll(".number").forEach(function (el) {
       function onInputNum(e) {
         if (
           (e.which != 8 && e.which != 0 && e.which < 48 && e.which != 13) ||
-          e.which > 57
+          e.which > 57 ||
+          this.value.length >= this.maxLength
         ) {
           e.preventDefault();
         }
 
+        // if (this.value.length >= this.maxLength - 1) {
         if (this.value.length >= this.maxLength - 1) {
           currerentTag = this;
 
@@ -176,8 +221,9 @@
           }
         }
       }
+      el.addEventListener("keydown", onInputNum.bind(el));
 
-      el.addEventListener("keypress", onInputNum.bind(el));
+      // el.addEventListener("keypress", onInputNum.bind(el));
     });
   </script>
 </html>

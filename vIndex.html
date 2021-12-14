@@ -40,7 +40,19 @@
             <span>{{title}}</span>
 
             <template v-for="(input, index) in inputs">            
-                <input />
+                <input
+                  type="number"
+                  class="
+                    px-1
+                    number
+                    one
+                    rounded-md
+                    border-gray-500 border-opacity-100 border
+                    "
+                  maxlength="3"
+                  max="255"
+                  min="0"
+                    />
                 <span v-if="!(index == inputs.length -1)">.</span>
             </template>
 
