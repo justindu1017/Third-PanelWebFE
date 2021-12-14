@@ -23,7 +23,7 @@
               <input
                 type="radio"
                 id="UseIP"
-                name="drone"
+                name="selection"
                 value="UseIP"
                 checked
               />
@@ -104,7 +104,7 @@
               <input
                 type="radio"
                 id="UseDomain"
-                name="drone"
+                name="selection"
                 value="UseDomain"
               />
               <label for="UseDomain">Use Domain</label>
@@ -130,7 +130,7 @@
           <div id="PortSec" class="py-2">
             <span>port:</span>
             <input
-              type="number"
+              type="text"
               class="
                 px-1
                 number
@@ -139,6 +139,7 @@
               "
               max="65534"
               min="0"
+              pattern="\d*"
               value="502"
               maxlength="5"
               placeholder="502"
@@ -146,10 +147,13 @@
               name="port"
             />
           </div>
+          <button
+            class="bg-blue-500 rounded-md px-2 py-1 text-white modal-open"
+            onclick="checkValue"
+          >
+            送出
+          </button>
         </form>
-        <button class="bg-blue-500 rounded-md px-2 py-1 text-white modal-open">
-          送出
-        </button>
       </div>
     </div>
 
@@ -185,35 +189,6 @@
           overflow-y-auto
         "
       >
-        <div
-          class="
-            modal-close
-            absolute
-            top-0
-            right-0
-            cursor-pointer
-            flex flex-col
-            items-center
-            mt-4
-            mr-4
-            text-white text-sm
-            z-50
-          "
-        >
-          <svg
-            class="fill-current text-white"
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 18 18"
-          >
-            <path
-              d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"
-            ></path>
-          </svg>
-          <span class="text-sm">(Esc)</span>
-        </div>
-
         <!-- Add margin if you want to see some of the overlay behind the modal-->
         <div class="modal-content py-4 text-left px-6">
           <!--Title-->
@@ -250,6 +225,7 @@
                 hover:bg-gray-100 hover:text-indigo-400
                 mr-2
               "
+              onclick="submitForm()"
             >
               Action
             </button>
@@ -304,62 +280,63 @@
     document.querySelectorAll(".number").forEach(function (el) {
       function onInputNum(e) {
         if (
-          (e.which != 8 && e.which != 0 && e.which < 48 && e.which != 13) ||
-          e.which > 57
+          ((e.which != 8 && e.which != 0 && e.which < 48 && e.which != 13) ||
+            e.which > 57) &&
+          this.id != "domainName"
         ) {
           e.preventDefault();
         }
 
-        setTimeout(() => {
-          if (this.value.length >= this.maxLength) {
-            currerentTag = this;
+        if (this.value.length >= this.maxLength && this.id != "port") {
+          currerentTag = this;
 
-            while (
-              currerentTag.nextElementSibling ||
-              currerentTag.parentElement.parentElement.nextElementSibling
+          while (
+            currerentTag.nextElementSibling ||
+            currerentTag.parentElement.parentElement.nextElementSibling
+          ) {
+            if (
+              currerentTag.nextElementSibling &&
+              (currerentTag.nextElementSibling.tagName.toLowerCase() ===
+                "input" ||
+                currerentTag.nextElementSibling.tagName.toLowerCase() ===
+                  "button")
             ) {
-              if (
-                currerentTag.nextElementSibling &&
-                (currerentTag.nextElementSibling.tagName.toLowerCase() ===
-                  "input" ||
-                  currerentTag.nextElementSibling.tagName.toLowerCase() ===
-                    "button")
-              ) {
-                currerentTag = currerentTag.nextElementSibling;
+              currerentTag = currerentTag.nextElementSibling;
 
-                window.setTimeout(() => currerentTag.focus(), 0);
-                break;
-              } else if (
-                !currerentTag.nextElementSibling &&
-                !currerentTag.parentElement.parentElement.nextElementSibling.querySelector(
-                  "#DomainSec"
-                )
-              ) {
-                currerentTag =
-                  currerentTag.parentElement.parentElement.parentElement.nextElementSibling.querySelector(
-                    "input"
-                  );
-                window.setTimeout(() => currerentTag.focus(), 0);
-                break;
-              } else {
-                currerentTag = currerentTag.nextElementSibling;
-              }
+              window.setTimeout(() => currerentTag.focus(), 0);
+              break;
+            } else if (
+              !currerentTag.nextElementSibling &&
+              !currerentTag.parentElement.parentElement.nextElementSibling.querySelector(
+                "#DomainSec"
+              )
+            ) {
+              currerentTag =
+                currerentTag.parentElement.parentElement.parentElement.nextElementSibling.querySelector(
+                  "input"
+                );
+              window.setTimeout(() => currerentTag.focus(), 0);
+              break;
+            } else {
+              currerentTag = currerentTag.nextElementSibling;
             }
           }
-        }, 0);
+        }
       }
-      function ff(e) {
+      function selectInput(e) {
         this.select();
       }
 
-      el.addEventListener("keydown", onInputNum.bind(el));
-      el.addEventListener("focus", ff.bind(el));
+      el.addEventListener("keyup", onInputNum.bind(el));
+      el.addEventListener("focus", selectInput.bind(el));
     });
 
     var openmodal = document.querySelector(".modal-open");
     openmodal.addEventListener("click", function (e) {
       e.preventDefault();
-      toggleModal();
+      if (checkValue()) {
+        toggleModal();
+      }
     });
 
     const overlay = document.querySelector(".modal-overlay");
@@ -427,6 +404,62 @@
       let newDiv = document.createElement("div");
       newDiv.innerHTML = "Port: " + document.querySelector("#port").value;
       modalDiv.appendChild(newDiv);
+    }
+
+    function checkValue() {
+      msg = "";
+      if (document.querySelector("#UseIP").checked) {
+        ipLists = document.querySelectorAll(".ipClass");
+        for (const [index, el] of ipLists.entries()) {
+          const ipVal = el.value;
+          if (ipVal == "" || ipVal.length > 3 || ipVal > 255) {
+            msg += "請確認ip的第" + (index + 1) + "欄\n";
+          }
+        }
+        const portVal = document.querySelector("#port").value;
+        if (
+          portVal.length > 5 ||
+          portVal > 65534 ||
+          portVal < 0 ||
+          portVal == ""
+        ) {
+          msg += "請確認port\n";
+        }
+        if (msg) {
+          msg += "是否正確";
+          alert(msg);
+          return false;
+        }
+      }
+
+      if (document.querySelector("#UseDomain").checked) {
+        const domainVal = document.querySelector("#port").value;
+
+        if (condition) {
+        }
+        const portVal = document.querySelector("#port").value;
+
+        if (
+          portVal.length > 5 ||
+          portVal > 65534 ||
+          portVal < 0 ||
+          portVal == ""
+        ) {
+          msg += "請確認port\n";
+        }
+        if (msg) {
+          msg += "是否正確";
+
+          alert(msg);
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function submitForm(e) {
+      console.log("send");
+      document.querySelector("form").submit();
     }
   </script>
 </html>
