@@ -46,6 +46,7 @@
                   max="255"
                   min="0"
                   name="ip1"
+                  inputmode="numeric"
                 />
                 <span>.</span>
                 <input
@@ -63,6 +64,7 @@
                   max="255"
                   min="0"
                   name="ip2"
+                  inputmode="numeric"
                 />
                 <span>.</span>
                 <input
@@ -80,6 +82,7 @@
                   max="255"
                   min="0"
                   name="ip3"
+                  inputmode="numeric"
                 />
                 <span>.</span>
                 <input
@@ -97,6 +100,7 @@
                   max="255"
                   min="0"
                   name="ip4"
+                  inputmode="numeric"
                 />
               </div>
             </div>
@@ -145,6 +149,7 @@
               placeholder="502"
               id="port"
               name="port"
+              inputmode="numeric"
             />
           </div>
           <button
@@ -261,6 +266,7 @@
     }
   </style>
   <script>
+    // if choose ip => disable domainName and enable ip
     document.querySelector("#UseIP").addEventListener("change", () => {
       document.querySelector("#domainName").value = "";
       document.querySelector("#domainName").disabled = true;
@@ -269,6 +275,8 @@
       }
     });
 
+
+    // if choose UseDomain => enable domainName and disable ip
     document.querySelector("#UseDomain").addEventListener("change", () => {
       document.querySelector("#domainName").disabled = false;
       for (const i of document.querySelectorAll(".ipClass")) {
@@ -276,8 +284,11 @@
         i.disabled = true;
       }
     });
-
+    
+    //  switch to the next input if reach the length of input
     document.querySelectorAll(".number").forEach(function (el) {
+
+      // force enter number
       function onInputNum(e) {
         if (
           ((e.which != 8 && e.which != 0 && e.which < 48 && e.which != 13) ||
@@ -287,6 +298,7 @@
           e.preventDefault();
         }
 
+        // switch to next input
         if (this.value.length >= this.maxLength && this.id != "port") {
           currerentTag = this;
 
@@ -323,14 +335,17 @@
           }
         }
       }
-      function selectInput(e) {
+
+      // if selecting an input section, select all text
+      function selectAllInput(e) {
         this.select();
       }
 
       el.addEventListener("keyup", onInputNum.bind(el));
-      el.addEventListener("focus", selectInput.bind(el));
+      el.addEventListener("focus", selectAllInput.bind(el));
     });
 
+    // for 送出 BTN
     var openmodal = document.querySelector(".modal-open");
     openmodal.addEventListener("click", function (e) {
       e.preventDefault();
