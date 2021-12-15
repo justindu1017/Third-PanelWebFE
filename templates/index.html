@@ -426,7 +426,7 @@
     }
 
     function checkValue() {
-      msg = "";
+      let msg = "";
       if (document.querySelector("#UseIP").checked) {
         ipLists = document.querySelectorAll(".ipClass");
         for (const [index, el] of ipLists.entries()) {
@@ -452,9 +452,10 @@
       }
 
       if (document.querySelector("#UseDomain").checked) {
-        const domainVal = document.querySelector("#port").value;
+        const domainVal = document.querySelector("#domainName").value;
 
-        if (condition) {
+        if (domainVal == "") {
+          msg+="請確認domain name\n"
         }
         const portVal = document.querySelector("#port").value;
 
