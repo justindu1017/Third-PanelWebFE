@@ -4,6 +4,7 @@ from databases import Database
 from dotenv import load_dotenv
 import os
 import asyncio
+from sqlalchemy import Integer
 
 
 database = Database(
@@ -18,18 +19,6 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/meter_list")
-async def meter_list():
-    await database.connect()
-    get_panel_query = "SELECT * FROM `meters`"
-    panel = await database.fetch_all(query=get_panel_query)
-    await database.disconnect()
-    # meterLists = jsonify(([list(i) for i in panel]))
-
-    # return render_template("meter_list.html", meterLists=meterLists)
-    return render_template("meter_list.html", meterLists=panel)
-
-
 @app.route("/post", methods=['POST'])
 async def getPost():
     form = request.form
@@ -42,6 +31,24 @@ async def getPost():
         await database.execute(query=query, values=values)
         await database.disconnect()
     return redirect("/")
+
+
+@app.route("/meter_list", methods=['GET'])
+async def get_meter_list():
+
+    page = request.args.get("page", default=1, type=int)
+    # the offset of current query
+    values = {"off": int((page-1)*40)}
+    async with database as db:
+        # search for pages
+        getPageQuery = "SELECT FLOOR(count(id)/40) FROM `meters`;"
+        query = "SELECT * FROM `meters` LIMIT 40 OFFSET :off;"
+        pages = await database.fetch_all(query=getPageQuery)
+        infos = await database.fetch_all(query=query, values=values)
+        await database.disconnect()
+    meterLists = jsonify(([list(i) for i in infos]))
+    # return render_template("meter_list.html", pages=pages[0][0]+1, infos=infos, page=page)
+    return render_template("nav.html", pages=pages[0][0]+1, infos=infos, page=page)
 
 
 def main():

@@ -34,14 +34,7 @@
                 <input
                   id="ip1"
                   type="number"
-                  class="
-                    ipClass
-                    px-1
-                    number
-                    one
-                    rounded-md
-                    border-gray-500 border-opacity-100 border
-                  "
+                  class="ipClass px-1 number one rounded-md border-gray-500 border-opacity-100 border"
                   maxlength="3"
                   max="255"
                   min="0"
@@ -52,14 +45,7 @@
                 <input
                   id="ip2"
                   type="number"
-                  class="
-                    ipClass
-                    px-1
-                    number
-                    two
-                    rounded-md
-                    border-gray-500 border-opacity-100 border
-                  "
+                  class="ipClass px-1 number two rounded-md border-gray-500 border-opacity-100 border"
                   maxlength="3"
                   max="255"
                   min="0"
@@ -70,14 +56,7 @@
                 <input
                   id="ip3"
                   type="number"
-                  class="
-                    ipClass
-                    px-1
-                    number
-                    three
-                    rounded-md
-                    border-gray-500 border-opacity-100 border
-                  "
+                  class="ipClass px-1 number three rounded-md border-gray-500 border-opacity-100 border"
                   maxlength="3"
                   max="255"
                   min="0"
@@ -88,14 +67,7 @@
                 <input
                   id="ip4"
                   type="number"
-                  class="
-                    ipClass
-                    px-1
-                    number
-                    four
-                    rounded-md
-                    border-gray-500 border-opacity-100 border
-                  "
+                  class="ipClass px-1 number four rounded-md border-gray-500 border-opacity-100 border"
                   maxlength="3"
                   max="255"
                   min="0"
@@ -118,13 +90,7 @@
                 <input
                   id="domainName"
                   type="text"
-                  class="
-                    px-1
-                    number
-                    two
-                    rounded-md
-                    border-gray-500 border-opacity-100 border
-                  "
+                  class="px-1 number two rounded-md border-gray-500 border-opacity-100 border"
                   name="domainName"
                   disabled
                 />
@@ -135,12 +101,7 @@
             <span>port:</span>
             <input
               type="text"
-              class="
-                px-1
-                number
-                rounded-md
-                border-gray-500 border-opacity-100 border
-              "
+              class="px-1 number rounded-md border-gray-500 border-opacity-100 border"
               max="65534"
               min="0"
               pattern="\d*"
@@ -163,36 +124,14 @@
     </div>
 
     <div
-      class="
-        modal
-        opacity-0
-        pointer-events-none
-        fixed
-        w-full
-        h-full
-        top-0
-        left-0
-        flex
-        items-center
-        justify-center
-      "
+      class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center"
     >
       <div
         class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"
       ></div>
 
       <div
-        class="
-          modal-container
-          bg-white
-          w-11/12
-          md:max-w-md
-          mx-auto
-          rounded
-          shadow-lg
-          z-50
-          overflow-y-auto
-        "
+        class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto"
       >
         <!-- Add margin if you want to see some of the overlay behind the modal-->
         <div class="modal-content py-4 text-left px-6">
@@ -221,34 +160,14 @@
           <!--Footer-->
           <div class="flex justify-end pt-2">
             <button
-              class="
-              modal-close
-              px-4
-              bg-indigo-500
-              p-3
-              rounded-lg
-              text-white
-              hover:bg-indigo-400
-            "
-
-
-
+              class="modal-close px-4 bg-indigo-500 p-3 rounded-lg text-white hover:bg-indigo-400"
               onclick="submitForm()"
             >
               確認
             </button>
             <button
-
-              class="
-              px-4
-              bg-transparent
-              p-3
-              rounded-lg
-              text-indigo-500
-              hover:bg-gray-100 hover:text-indigo-400
-              mr-2
-            "
-            onclick="toggleModal()"
+              class="px-4 bg-transparent p-3 rounded-lg text-indigo-500 hover:bg-gray-100 hover:text-indigo-400 mr-2"
+              onclick="toggleModal()"
             >
               關閉
             </button>
@@ -280,7 +199,6 @@
       }
     });
 
-
     // if choose UseDomain => enable domainName and disable ip
     document.querySelector("#UseDomain").addEventListener("change", () => {
       document.querySelector("#domainName").disabled = false;
@@ -289,10 +207,9 @@
         i.disabled = true;
       }
     });
-    
+
     //  switch to the next input if reach the length of input
     document.querySelectorAll(".number").forEach(function (el) {
-
       // force enter number
       function onInputNum(e) {
         if (
@@ -457,7 +374,7 @@
         const domainVal = document.querySelector("#domainName").value;
 
         if (domainVal == "") {
-          msg+="請確認domain name\n"
+          msg += "請確認domain name\n";
         }
         const portVal = document.querySelector("#port").value;
 
