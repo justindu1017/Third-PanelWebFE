@@ -163,10 +163,10 @@
         <!--Body-->
 
         <div class="modalDiv overflow-hidden">
-          <form action="/" method="post">
+          <form action="/meter_list" method="get" id="gotoForm">
             <div>
               <div>ID系列:</div>
-              <input type="number"  id="goto" class="ipClass px-1 w-20 number four rounded-md border-gray-500 border-opacity-100 border" onkeydown="return !(event.keyCode === 69 || event.keyCode === 189 || event.keyCode === 110||event.keyCode === 190)" />
+              <input type="number" name="ID" id="goto" class="ipClass px-1 w-20 number four rounded-md border-gray-500 border-opacity-100 border" onkeydown="return !(event.keyCode === 69 || event.keyCode === 189 || event.keyCode === 110||event.keyCode === 190)" />
             </div>
             <div>
               <div>ip 系列: </div>
@@ -226,13 +226,15 @@
             </div>
             <div>
               <div>Create At系列:</div>
-              <input name="meterType"
-              class="ipClass px-1 w-20 number four rounded-md border-gray-500 border-opacity-100 border"
-              oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
-              onkeydown="return !(event.keyCode === 69 || event.keyCode === 189 || event.keyCode === 110||event.keyCode === 190)"
-              type = "number"
-              maxlength = "3"
-              />
+              <input 
+              class="ipClass px-1 w-64 number four rounded-md border-gray-500 border-opacity-100 border"
+              type="date" id="CreateAt" name="CreateAt">
+            </div>
+            <div>
+              <div>Updated At系列:</div>
+              <input 
+              class="ipClass px-1 w-64 number four rounded-md border-gray-500 border-opacity-100 border"
+              type="date" id="UpdatedAt" name="UpdatedAt">
             </div>
           </form>
         </div>
@@ -241,7 +243,7 @@
         <div class="flex justify-end pt-2">
           <button
             class="modal-close px-4 bg-indigo-500 p-3 rounded-lg text-white hover:bg-indigo-400"
-            onclick="submitForm()"
+            type="submit" form="gotoForm"
           >
             確認
           </button>

@@ -13,6 +13,8 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='css/icons.css') }}"
     />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.0/axios.min.js" integrity="sha512-bPh3uwgU5qEMipS/VOmRqynnMXGGSRv+72H/N260MQeXZIK4PG48401Bsby9Nq5P5fz7hy5UGNmC/W1Z51h2GQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   </head>
   <body class=" bg-slate-100 flex ">
     <div>
@@ -64,12 +66,12 @@
     </div>
 
     <div class="pl-28  w-screen h-screen ">
-      <div class="w-auto h-14 block bg-red-500 ">
+      <div class="fixed w-full h-14 block bg-red-500 ">
         <nav id="banner" class=" mb-10">我是 NavBar 到時候討論功能</nav>
       </div>
 
 
-      <div class="flex flex-col justify-center w-auto bg-white rounded-xl m-4">
+      <div class="flex flex-col justify-center w-auto bg-white rounded-xl m-4 mt-20">
         <div id="meterList al ml-16">
           <div class="flex w-full justify-around ">
             <div class="w-1/6 text-center text-lg">ID</div>
@@ -94,7 +96,7 @@
         </div>
 
       </div>
-      <div class="flex justify-around mt-4 mb-2">
+      <div class="flex justify-around mt-4 mb-2 pt-2 pb-5">
         <div></div>
         <div id="pageNum" class="flex justify-center items-center">
           {% if (page)!=1 %}
@@ -118,8 +120,8 @@
           <a class="btn p-1 mx-2 rounded bg-gradient-to-b from-gray-300 to-gray-500" href="/meter_list?page={{ pages }}">{{ pages }}</a>
           <a href="/meter_list?page={{ page+1 }}">下一頁></a>
           {% endif %}
+          <input type="number"  id="goto" class="w-14 rounded mx-4" onkeydown="return !((event.keyCode === 69 || event.keyCode === 189) && event.keyCode !== 13)" />
 
-          <input type="text" id="goto" pattern="\d*" class="w-10 rounded mx-4">
         </div>
         
         <div class="flex justify-end item-end bg-blue-300 rounded p-1" onclick="toggleModal()">
@@ -127,5 +129,225 @@
         </div>
       </div>
     </div>
+    <!-- modal -->
+    <div
+    class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center"
+  >
+    <div
+      class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"
+    ></div>
+
+    <div
+      class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto"
+    >
+      <!-- Add margin if you want to see some of the overlay behind the modal-->
+      <div class="modal-content py-4 text-left px-6">
+        <!--Title-->
+        <div class="flex justify-between items-center pb-3">
+          <p class="text-2xl font-bold">想找什麼呢</p>
+          <div class="modal-close cursor-pointer z-50" onclick="toggleModal()">
+            <svg
+              class="fill-current text-black"
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+            >
+              <path
+                d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"
+              ></path>
+            </svg>
+          </div>
+        </div>
+
+        <!--Body-->
+
+        <div class="modalDiv overflow-hidden">
+          <form action="/meter_list" method="post" id="gotoForm">
+            <div>
+              <div>ID系列:</div>
+              <input type="number" name="ID" id="goto" class="ipClass px-1 w-20 number four rounded-md border-gray-500 border-opacity-100 border" onkeydown="return !(event.keyCode === 69 || event.keyCode === 189 || event.keyCode === 110||event.keyCode === 190)" />
+            </div>
+            <div>
+              <div>ip 系列: </div>
+              <div class="flex">
+                <input name="ip1"
+                class="ipClass px-1 w-20 number four rounded-md border-gray-500 border-opacity-100 border"
+                oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                onkeydown="return !(event.keyCode === 69 || event.keyCode === 189 || event.keyCode === 110||event.keyCode === 190)"
+                type = "number"
+                maxlength = "3"
+                />
+                <span>.</span>
+                <input name="ip2"
+                class="ipClass px-1 w-20 number four rounded-md border-gray-500 border-opacity-100 border"
+                oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                onkeydown="return !(event.keyCode === 69 || event.keyCode === 189 || event.keyCode === 110||event.keyCode === 190)"
+                type = "number"
+                maxlength = "3"
+                />
+                <span>.</span>
+                <input name="ip3"
+                class="ipClass px-1 w-20 number four rounded-md border-gray-500 border-opacity-100 border"
+                oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                onkeydown="return !(event.keyCode === 69 || event.keyCode === 189 || event.keyCode === 110||event.keyCode === 190)"
+                type = "number"
+                maxlength = "3"
+                />
+                <span>.</span>
+                <input name="ip4"
+                class="ipClass px-1 w-20 number four rounded-md border-gray-500 border-opacity-100 border"
+                oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                onkeydown="return !(event.keyCode === 69 || event.keyCode === 189 || event.keyCode === 110||event.keyCode === 190)"
+                type = "number"
+                maxlength = "3"
+                />
+              </div>
+            </div>
+            <div>
+              <div>Port系列:</div>
+              <input name="port"
+              class="ipClass px-1 w-20 number four rounded-md border-gray-500 border-opacity-100 border"
+              oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+              onkeydown="return !(event.keyCode === 69 || event.keyCode === 189 || event.keyCode === 110||event.keyCode === 190)"
+              type = "number"
+              maxlength = "3"
+              />
+            </div>
+            <div>
+              <div>Meter Type系列:</div>
+              <input name="meterType"
+              class="ipClass px-1 w-20 number four rounded-md border-gray-500 border-opacity-100 border"
+              oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+              onkeydown="return !(event.keyCode === 69 || event.keyCode === 189 || event.keyCode === 110||event.keyCode === 190)"
+              type = "number"
+              maxlength = "3"
+              />
+            </div>
+            <div>
+              <div>Create At系列:</div>
+              <input 
+              class="ipClass px-1 w-64 number four rounded-md border-gray-500 border-opacity-100 border"
+              type="date" id="CreateAt" name="CreateAt">
+            </div>
+            <div>
+              <div>Updated At系列:</div>
+              <input 
+              class="ipClass px-1 w-64 number four rounded-md border-gray-500 border-opacity-100 border"
+              type="date" id="UpdatedAt" name="UpdatedAt">
+            </div>
+          </form>
+        </div>
+
+        <!--Footer-->
+        <div class="flex justify-end pt-2">
+          <button
+            class="modal-close px-4 bg-indigo-500 p-3 rounded-lg text-white hover:bg-indigo-400"
+            type="submit" form="gotoForm"
+          >
+            確認
+          </button>
+          <button
+            class="px-4 bg-transparent p-3 rounded-lg text-indigo-500 hover:bg-gray-100 hover:text-indigo-400 mr-2"
+            onclick="toggleModal()"
+          >
+            關閉
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+    <script>
+      const inputGoto = document.querySelector("#goto")
+
+      
+      inputGoto.addEventListener("keydown", function(e){
+        let p = inputGoto.value;
+        // console.log(e)
+        if(e.which == 13 && p.length >0){
+            if( p> {{pages}}){
+            alert("太大囉")
+            inputGoto.value = ""
+            return
+          }
+          let gotoP = ('/meter_list?page='+p)
+          window.location.href =gotoP;
+
+        }
+      })
+
+
+
+
+
+      var openmodal = document.querySelector(".modal-open");
+    openmodal.addEventListener("click", function (e) {
+      e.preventDefault();
+      if (checkValue()) {
+        toggleModal();
+      }
+    });
+
+    const overlay = document.querySelector(".modal-overlay");
+    overlay.addEventListener("click", toggleModal);
+
+    var closemodal = document.querySelectorAll(".modal-close");
+    for (var i = 0; i < closemodal.length; i++) {
+      closemodal[i].addEventListener("click", toggleModal);
+    }
+
+
+    document.onkeydown = function (evt) {
+      evt = evt || window.event;
+      var isEscape = false;
+      if ("key" in evt) {
+        isEscape = evt.key === "Escape" || evt.key === "Esc";
+      } else {
+        isEscape = evt.keyCode === 27;
+      }
+      if (isEscape && document.body.classList.contains("modal-active")) {
+        toggleModal();
+      }
+    };
+
+    function toggleModal() {
+
+      const modal = document.querySelector(".modal");
+      const modalDiv = document.querySelector(".modalDiv");
+      modal.classList.toggle("opacity-0");
+      modal.classList.toggle("pointer-events-none");
+      if (document.querySelector("#UseIP").checked) {
+        ipLists = document.querySelectorAll(".ipClass");
+        let newDiv = document.createElement("div");
+        newDiv.innerHTML = "IP Address:";
+        modalDiv.appendChild(newDiv);
+        for (const [index, el] of ipLists.entries()) {
+          let newDiv = document.createElement("span");
+          newDiv.innerHTML = el.value;
+          modalDiv.appendChild(newDiv);
+          if (!(index == ipLists.length - 1)) {
+            newDiv = document.createElement("span");
+            newDiv.innerHTML = ".";
+            modalDiv.appendChild(newDiv);
+          }
+        }
+      }
+
+      if (document.querySelector("#UseDomain").checked) {
+        let newDiv = document.createElement("div");
+        newDiv.innerHTML = "Domain Name: ";
+        modalDiv.appendChild(newDiv);
+        newDiv = document.createElement("span");
+        newDiv.innerHTML = document.querySelector("#domainName").value;
+        modalDiv.appendChild(newDiv);
+      }
+
+      let newDiv = document.createElement("div");
+      newDiv.innerHTML = "Port: " + document.querySelector("#port").value;
+      modalDiv.appendChild(newDiv);
+    }
+
+
+    </script>
   </body>
 </html>
