@@ -108,6 +108,12 @@ async def get_meter_list():
             q.put(tmpStr)
             tmpStr = ""
 
+        if meterType:
+            tmpStr += ' meter_type = :meterType '
+            paramValues["meterType"] = str(meterType)
+            q.put(tmpStr)
+            tmpStr = ""
+
         if CreateAt:
             createDateFrom = datetime.strftime(
                 datetime.strptime(CreateAt, "%Y-%m-%d"), '%Y-%m-%d')
