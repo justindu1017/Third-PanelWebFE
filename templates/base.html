@@ -16,11 +16,11 @@
     {% block headAddOn%}{% endblock headAddOn%}
   </head>
   <body class="bg-slate-100 flex">
-    <div class="w-28">
-      <nav class="fixed h-screen navbg-white">
+    <div id="containerXXX" class="w-2/12">
+      <div class="fixed h-screen" style="width: 13%">
         <ul class="flex flex-col justify-center h-full">
-          <li class="flex hover:bg-slate-200 duration-75">
-            <a href="/">
+          <a href="/">
+            <li class="flex hover:bg-slate-200 duration-75">
               <div class="flex w-full m-2">
                 <div>
                   <svg
@@ -37,11 +37,10 @@
                   <span class="link-text w-0 ml-2"> 新增電表 </span>
                 </div>
               </div>
-            </a>
-          </li>
-
-          <li class="flex hover:bg-slate-200 duration-75">
-            <a href="/meter_list">
+            </li>
+          </a>
+          <a href="/meter_list">
+            <li class="flex hover:bg-slate-200 duration-75">
               <div class="flex w-full m-2">
                 <div>
                   <svg
@@ -58,10 +57,10 @@
                   <span class="link-text w-0 ml-2"> 電表總爛 </span>
                 </div>
               </div>
-            </a>
-          </li>
+            </li>
+          </a>
         </ul>
-      </nav>
+      </div>
     </div>
 
     <div class="w-full h-screen">
@@ -75,7 +74,9 @@
   </body>
   <style>
     {% block moreStyle%}{% endblock moreStyle%}
-
+    #container > div {
+      width: inherit;
+    }
     /* Chrome, Safari, Edge, Opera */
     input::-webkit-outer-spin-button,
     input::-webkit-inner-spin-button {
