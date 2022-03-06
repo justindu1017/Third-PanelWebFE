@@ -122,15 +122,19 @@ function toggleModal() {
   if (document.querySelector("#UseIP").checked) {
     ipLists = document.querySelectorAll(".ipClass");
     let newDiv = document.createElement("div");
-    newDiv.innerHTML = "IP Address:";
+    newDiv.innerHTML = "IP Address: ";
+    newDiv.classList.add("text-2xl");
     modalDiv.appendChild(newDiv);
+
     for (const [index, el] of ipLists.entries()) {
       let newDiv = document.createElement("span");
       newDiv.innerHTML = el.value;
+      newDiv.classList.add("text-2xl");
       modalDiv.appendChild(newDiv);
       if (!(index == ipLists.length - 1)) {
         newDiv = document.createElement("span");
         newDiv.innerHTML = ".";
+        newDiv.classList.add("text-2xl");
         modalDiv.appendChild(newDiv);
       }
     }
@@ -139,14 +143,17 @@ function toggleModal() {
   if (document.querySelector("#UseDomain").checked) {
     let newDiv = document.createElement("div");
     newDiv.innerHTML = "Domain Name: ";
+    newDiv.classList.add("text-2xl");
     modalDiv.appendChild(newDiv);
     newDiv = document.createElement("span");
     newDiv.innerHTML = document.querySelector("#domainName").value;
+    newDiv.classList.add("text-2xl");
     modalDiv.appendChild(newDiv);
   }
 
   let newDiv = document.createElement("div");
   newDiv.innerHTML = "Port: " + document.querySelector("#port").value;
+  newDiv.classList.add("text-2xl");
   modalDiv.appendChild(newDiv);
 }
 

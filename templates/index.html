@@ -8,14 +8,15 @@ headAddOn%}
 {% endblock headAddOn%} {% block content%}
 
 <div
-  class="flex justify-center w-auto bg-white rounded-xl m-4 p-20 mt-20 align-middle"
+  class="w-auto bg-white rounded-xl m-4 p-20 mt-20 align-middle text-lg"
   id="app"
 >
   <div class="auto">
     <form action="/post" method="post">
       <div>
-        <div id="IPSec" class="py-2">
+        <div id="IPSec" class="py-2 mb-6">
           <input
+
             type="radio"
             id="UseIP"
             name="selection"
@@ -25,11 +26,12 @@ headAddOn%}
           <label for="UseIP">Use IP</label>
           <br />
           <span>ip address:</span>
-          <div>
+          <div class="w-full whitespace-nowrap mt-2">
             <input
               id="ip1"
               type="number"
-              class="ipClass px-1 number one rounded-md border-gray-500 border-opacity-100 border"
+              class="ipClass px-1 number one rounded-md border-gray-500 border-opacity-100 border h-10"
+              style="width: 23.6%;"
               maxlength="3"
               max="255"
               min="0"
@@ -40,7 +42,8 @@ headAddOn%}
             <input
               id="ip2"
               type="number"
-              class="ipClass px-1 number two rounded-md border-gray-500 border-opacity-100 border"
+              class="ipClass px-1 number two rounded-md border-gray-500 border-opacity-100 border h-10"
+              style="width: 23.6%;"
               maxlength="3"
               max="255"
               min="0"
@@ -51,7 +54,8 @@ headAddOn%}
             <input
               id="ip3"
               type="number"
-              class="ipClass px-1 number three rounded-md border-gray-500 border-opacity-100 border"
+              class="ipClass px-1 number three rounded-md border-gray-500 border-opacity-100 border h-10"
+              style="width: 23.6%;"
               maxlength="3"
               max="255"
               min="0"
@@ -62,7 +66,8 @@ headAddOn%}
             <input
               id="ip4"
               type="number"
-              class="ipClass px-1 number four rounded-md border-gray-500 border-opacity-100 border"
+              class="ipClass px-1 number four rounded-md border-gray-500 border-opacity-100 border h-10"
+              style="width: 23.6%;"
               maxlength="3"
               max="255"
               min="0"
@@ -71,7 +76,7 @@ headAddOn%}
             />
           </div>
         </div>
-        <div id="DomainSec" class="py-2">
+        <div id="DomainSec" class="py-2 mb-6">
           <input
             type="radio"
             id="UseDomain"
@@ -81,22 +86,23 @@ headAddOn%}
           <label for="UseDomain">Use Domain</label>
           <br />
           <span>Domain Name: </span>
-          <div>
+          <div class="mt-2">
             <input
               id="domainName"
               type="text"
-              class="px-1 number two rounded-md border-gray-500 border-opacity-100 border"
+              class="px-1 w-full number two rounded-md border-gray-500 border-opacity-100 border h-10"
               name="domainName"
               disabled
             />
           </div>
         </div>
       </div>
-      <div id="PortSec" class="py-2">
+      <div id="PortSec" class="py-2 mb-5">
         <span>port:</span>
         <input
+
           type="text"
-          class="px-1 number rounded-md border-gray-500 border-opacity-100 border"
+          class="px-1 w-1/2 number rounded-md border-gray-500 border-opacity-100 border mt-2 h-10"
           max="65534"
           min="0"
           pattern="\d*"
@@ -109,7 +115,7 @@ headAddOn%}
         />
       </div>
       <button
-        class="bg-blue-500 rounded-md px-2 py-1 text-white modal-open"
+        class="bg-blue-500 rounded-md text-lg px-2 py-1 w-40 h-10 text-white modal-open"
         onclick="checkValue"
       >
         送出
@@ -117,23 +123,24 @@ headAddOn%}
     </form>
   </div>
 </div>
-  {% endblock content%} {% block modal%}
+  {% endblock content%} 
+  {% block modal%}
   
   <div
-  class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center"
+  class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center  text-lg"
 >
   <div
     class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"
   ></div>
 
   <div
-    class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto"
+    class="modal-container bg-white w-11/12 max-w-4xl max-h-3xl mx-auto rounded shadow-lg z-50 overflow-y-auto"
   >
     <!-- Add margin if you want to see some of the overlay behind the modal-->
     <div class="modal-content py-4 text-left px-6">
       <!--Title-->
       <div class="flex justify-between items-center pb-3">
-        <p class="text-2xl font-bold">請確認資訊是否正確</p>
+        <p class=" font-bold text-3xl">請確認資訊是否正確</p>
 
       </div>
 
@@ -144,13 +151,13 @@ headAddOn%}
       <!--Footer-->
       <div class="flex justify-end pt-2">
         <button
-          class="modal-close px-4 bg-indigo-500 p-3 rounded-lg text-white hover:bg-indigo-400"
+          class="modal-close  bg-indigo-500 text-lg px-2 py-1 w-40  mx-3 rounded-lg text-white hover:bg-indigo-400"
           onclick="submitForm()"
         >
           確認
         </button>
         <button
-          class="px-4 bg-transparent p-3 rounded-lg text-indigo-500 hover:bg-gray-100 hover:text-indigo-400 mr-2"
+          class="px-4 bg-transparent text-lg px-2 py-1 w-40  rounded-lg text-indigo-500 hover:bg-gray-100 hover:text-indigo-400 mr-2"
           onclick="toggleModal()"
         >
           關閉
@@ -161,3 +168,12 @@ headAddOn%}
 </div>
   {% endblock modal%}
 </div>
+
+{% block moreStyle%}
+
+input[type='radio'] { 
+  transform: scale(1.5); 
+  margin: 0.5rem;
+}
+{% endblock moreStyle%}
+
