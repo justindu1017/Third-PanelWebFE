@@ -33,3 +33,20 @@ function toggleModal() {
   modal.classList.toggle("opacity-0");
   modal.classList.toggle("pointer-events-none");
 }
+
+document.querySelector("#UseIP").addEventListener("change", () => {
+  document.querySelector("#domainName").value = "";
+  document.querySelector("#domainName").disabled = true;
+  for (const i of document.querySelectorAll(".ipClass")) {
+    i.disabled = false;
+  }
+});
+
+// if choose UseDomain => enable domainName and disable ip
+document.querySelector("#UseDomain").addEventListener("change", () => {
+  document.querySelector("#domainName").disabled = false;
+  for (const i of document.querySelectorAll(".ipClass")) {
+    i.value = "";
+    i.disabled = true;
+  }
+});

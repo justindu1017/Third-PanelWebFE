@@ -6,9 +6,12 @@
 src="{{ url_for('static', filename='scripts/meterList.js') }} "
 defer
 ></script>
+<script
+src="{{ url_for('static', filename='scripts/meterListPre.js') }} "
+></script>
 {% endblock headAddOn%} 
 {% block content%}
-<div class="flex flex-col justify-center w-auto mt-9 bg-white rounded-xl h-5/6">
+<div class="flex flex-col w-auto mt-9 bg-white rounded-xl h-5/6 text-xl">
   <div class="flex w-full justify-around ">
     <div class="w-1/6 text-center text-lg">ID</div>
     <div class="w-1/6 text-center text-lg">IP</div>
@@ -21,12 +24,12 @@ defer
     <div>
       {% for info in infos %}
       <div class="flex w-full justify-around  hover:bg-slate-200 duration-75 ">
-        <div class="w-1/6 text-center text-lg">{{ info[0] }}</div>
-        <div class="w-1/6 text-center text-lg">{{ info[1] }}</div>
-        <div class="w-1/6 text-center text-lg">{{ info[2] }}</div>
-        <div class="w-1/6 text-center text-lg">{{ info[3] }}</div>
-        <div class="w-1/6 text-center text-lg">{{ info[5] }}</div>
-        <div class="w-1/6 text-center text-lg">{{ info[6] }}</div>
+        <div class="w-1/6 text-center text-lg flex items-center justify-center">{{ info[0] }}</div>
+        <div class="w-1/6 text-center text-lg flex items-center justify-center">{{ info[1] }}</div>
+        <div class="w-1/6 text-center text-lg flex items-center justify-center">{{ info[2] }}</div>
+        <div class="w-1/6 text-center text-lg flex items-center justify-center">{{ info[3] }}</div>
+        <div class="w-1/6 text-center text-lg flex items-center justify-center">{{ info[5].strftime('%Y-%m-%d  %H:%M') }}</div>
+        <div class="w-1/6 text-center text-lg flex items-center justify-center">{{ info[6].strftime('%Y-%m-%d  %H:%M') }}</div>
       </div>
       {% endfor%}  
     </div>
@@ -34,28 +37,28 @@ defer
 
 
 </div>
-<div class="flex justify-around mt-4 mb-2 pt-1 pb-5">
+<div class="flex justify-around mt-4 mb-2 pt-1 pb-5 text-xl" >
   <div></div>
   <div id="pageNum" class="flex justify-center items-center">
     {% if (page)!=1 %}
 
     <a href="/meter_list?page={{ page-1 }}"><上一頁</a>
 
-    <a class="btn p-1 rounded bg-gradient-to-b from-gray-300 to-gray-500 mx-2" href="/meter_list?page=1">
+    <a class="btn p-2 rounded bg-gradient-to-b from-gray-300 to-gray-500 mx-2" href="/meter_list?page=1">
           1
     </a>
     {% endif %} {% if (page-1)>1 %}
     <p class="mx-2 rounded ">...</p>
-    <a class="btn p-1 mx-1 rounded  bg-gradient-to-b from-gray-300 to-gray-500" href="/meter_list?page={{ (page-1) }}">{{ page-1 }}</a>
+    <a class="btn p-2 mx-2 rounded  bg-gradient-to-b from-gray-300 to-gray-500" href="/meter_list?page={{ (page-1) }}">{{ page-1 }}</a>
     {% endif %}
 
-    <a class="btn p-1 rounded bg-gradient-to-b from-green-400 to-blue-500 mx-1" href="/meter_list?page={{ page }}">{{ page }}</a>
+    <a class="btn p-2 rounded bg-gradient-to-b from-green-400 to-blue-500 mx-2" href="/meter_list?page={{ page }}">{{ page }}</a>
     {% if (page+1)<pages %}
-    <a class="btn p-1 rounded bg-gradient-to-b from-gray-300 to-gray-500 mx-1" href="/meter_list?page={{ (page+1) }}">{{ page+1 }}</a>
+    <a class="btn p-2 rounded bg-gradient-to-b from-gray-300 to-gray-500 mx-2" href="/meter_list?page={{ (page+1) }}">{{ page+1 }}</a>
     <p class="mx-2 rounded">...</p>
     {% endif %}
     {% if (page)!=pages %}
-    <a class="btn p-1 mx-2 rounded bg-gradient-to-b from-gray-300 to-gray-500" href="/meter_list?page={{ pages }}">{{ pages }}</a>
+    <a class="btn p-2 mx-2 rounded bg-gradient-to-b from-gray-300 to-gray-500" href="/meter_list?page={{ pages }}">{{ pages }}</a>
     <a href="/meter_list?page={{ page+1 }}">下一頁></a>
     {% endif %}
     <input type="number"  id="goto" class="w-14 rounded mx-4" onkeydown="return !((event.keyCode === 69 || event.keyCode === 189) && event.keyCode !== 13)" />
@@ -79,13 +82,13 @@ defer
     ></div>
 
     <div
-      class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto"
+      class="modal-container bg-white w-11/12 max-w-5xl mx-auto rounded shadow-lg z-50 overflow-y-auto"
     >
       <!-- Add margin if you want to see some of the overlay behind the modal-->
       <div class="modal-content py-4 text-left px-6">
         <!--Title-->
         <div class="flex justify-between items-center pb-3">
-          <p class="text-2xl font-bold">想找什麼呢</p>
+          <p class="text-3xl font-bold">想找什麼呢</p>
 
         </div>
 
@@ -93,46 +96,98 @@ defer
 
         <div class="modalDiv overflow-hidden">
           <form action="/meter_list" method="get" id="gotoForm">
-            <div>
-              <div>ip 系列: </div>
-              <div class="flex">
+            <div class="mb-4 rounded border-2 border-orange-200 py-3 px-2">
+              <div class="mb-3">
+
+                <input
+                type="radio"
+                id="IPorDomain"
+                name="selection"
+                value="none"
+              />
+              <label for="IPorDomain">不使用IP或Domain Name搜尋</label>
+  
+              </div>
+
+            <div class="mb-3">
+              <input
+              type="radio"
+              id="UseIP"
+              name="selection"
+              value="UseIP"
+              checked
+
+            />
+              <label for="UseIP">ip 系列: </label>
+              <div class="flex ">
                 <input name="ip1"
-                class="ipClass px-1 w-20 number four rounded-md border-gray-500 border-opacity-100 border"
+                class="ipClass h-10 px-1 w-20 number four rounded-md border-gray-500 border-opacity-100 border"
                 oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
                 onkeydown="return !(event.keyCode === 69 || event.keyCode === 189 || event.keyCode === 110||event.keyCode === 190)"
                 type = "number"
+                style="width: 24.6%;"
                 maxlength = "3"
                 />
                 <span>.</span>
                 <input name="ip2"
-                class="ipClass px-1 w-20 number four rounded-md border-gray-500 border-opacity-100 border"
+                class="ipClass h-10 px-1 w-20 number four rounded-md border-gray-500 border-opacity-100 border"
                 oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
                 onkeydown="return !(event.keyCode === 69 || event.keyCode === 189 || event.keyCode === 110||event.keyCode === 190)"
                 type = "number"
+                style="width: 24.6%;"
                 maxlength = "3"
                 />
                 <span>.</span>
                 <input name="ip3"
-                class="ipClass px-1 w-20 number four rounded-md border-gray-500 border-opacity-100 border"
+                class="ipClass h-10 px-1 w-20 number four rounded-md border-gray-500 border-opacity-100 border"
                 oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
                 onkeydown="return !(event.keyCode === 69 || event.keyCode === 189 || event.keyCode === 110||event.keyCode === 190)"
                 type = "number"
+                style="width: 24.6%;"
                 maxlength = "3"
                 />
                 <span>.</span>
                 <input name="ip4"
-                class="ipClass px-1 w-20 number four rounded-md border-gray-500 border-opacity-100 border"
+                class="ipClass h-10 px-1 w-20 number four rounded-md border-gray-500 border-opacity-100 border"
                 oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
                 onkeydown="return !(event.keyCode === 69 || event.keyCode === 189 || event.keyCode === 110||event.keyCode === 190)"
                 type = "number"
+                style="width: 24.6%;"
                 maxlength = "3"
                 />
               </div>
             </div>
+
+
+
+            
+            <div >
+              <div>
+                <input
+                type="radio"
+                id="UseDomain"
+                name="selection"
+                value="UseDomain"
+                />
+                <label for="UseDomain">Domain Name:</label>
+              </div>
+
+              <input name="domainName"
+              id="domainName"
+              disabled
+              class=" px-1 h-10 number four rounded-md border-gray-500 border-opacity-100 border w-full"
+              />
+            </div>
+
+            </div>
+
+
+
             <div>
+              
               <div>Port系列:</div>
               <input name="port"
-              class="ipClass px-1 w-20 number four rounded-md border-gray-500 border-opacity-100 border"
+              class=" px-1 h-10 number four rounded-md border-gray-500 border-opacity-100 border w-full"
               oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
               onkeydown="return !(event.keyCode === 69 || event.keyCode === 189 || event.keyCode === 110||event.keyCode === 190)"
               type = "number"
@@ -142,7 +197,7 @@ defer
             <div>
               <div>Meter Type系列:</div>
               <input name="meterType"
-              class="ipClass px-1 w-20 number four rounded-md border-gray-500 border-opacity-100 border"
+              class=" px-1 h-10 number four rounded-md border-gray-500 border-opacity-100 border w-full"
               oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
               onkeydown="return !(event.keyCode === 69 || event.keyCode === 189 || event.keyCode === 110||event.keyCode === 190)"
               type = "number"
@@ -152,13 +207,13 @@ defer
             <div>
               <div>Create At系列:</div>
               <input 
-              class="ipClass px-1 w-64 number four rounded-md border-gray-500 border-opacity-100 border"
+              class=" px-1 h-10 w-1/2 number four rounded-md border-gray-500 border-opacity-100 border"
               type="date" id="CreateAt" name="CreateAt">
             </div>
             <div>
               <div>Updated At系列:</div>
               <input 
-              class="ipClass px-1 w-64 number four rounded-md border-gray-500 border-opacity-100 border"
+              class=" px-1 h-10 w-1/2 number four rounded-md border-gray-500 border-opacity-100 border"
               type="date" id="UpdatedAt" name="UpdatedAt">
             </div>
           </form>
@@ -193,7 +248,7 @@ inputGoto.addEventListener("keydown", function(e){
   // console.log(e)
   if(e.which == 13 && p.length >0){
       if( p> {{pages}}){
-      alert("太大囉")
+      alert("輸入頁數超過範圍，請重新整理或確認數值是否正確!!!")
       inputGoto.value = ""
       return
     }
@@ -203,5 +258,31 @@ inputGoto.addEventListener("keydown", function(e){
   }
 })
 
+document.querySelector("#IPorDomain").addEventListener("change", () => {
+  document.querySelector("#domainName").value = "";
+  document.querySelector("#domainName").disabled = true;
+  for (const i of document.querySelectorAll(".ipClass")) {
+    i.value = "";
+    i.disabled = true;
+  }
+});
+
+
+document.querySelector("#UseIP").addEventListener("change", () => {
+  document.querySelector("#domainName").value = "";
+  document.querySelector("#domainName").disabled = true;
+  for (const i of document.querySelectorAll(".ipClass")) {
+    i.disabled = false;
+  }
+});
+
+// if choose UseDomain => enable domainName and disable ip
+document.querySelector("#UseDomain").addEventListener("change", () => {
+  document.querySelector("#domainName").disabled = false;
+  for (const i of document.querySelectorAll(".ipClass")) {
+    i.value = "";
+    i.disabled = true;
+  }
+});
 
 {% endblock moreScript%}

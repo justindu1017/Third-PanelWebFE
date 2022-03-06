@@ -29,8 +29,10 @@ async def getPost():
     form = request.form
     if form["selection"] == "UseIP":
         ip = form["ip1"]+"."+form["ip2"]+"."+form["ip3"]+"."+form["ip4"]
-        port = form["port"]
-        values = {"ip": ip, "port": port}
+    else:
+        ip = form["domainName"]
+    port = form["port"]
+    values = {"ip": ip, "port": port}
     async with database as db:
         query = "INSERT INTO meters(ip, port) VALUES (:ip, :port)"
         await db.execute(query=query, values=values)
@@ -40,7 +42,8 @@ async def getPost():
 
 @app.route("/meter_list", methods=["GET"])
 async def get_meter_list():
-    # ID = request.args.get("ID")
+    selection = request.args.get("selection")
+    domainName = request.args.get("domainName")
     ip1 = request.args.get("ip1")
     ip2 = request.args.get("ip2")
     ip3 = request.args.get("ip3")
@@ -51,7 +54,7 @@ async def get_meter_list():
     UpdatedAt = request.args.get("UpdatedAt")
     page = request.args.get("page", default=1, type=int)
 
-    if not (ip1 or ip2 or ip3 or ip4 or port or meterType or CreateAt or UpdatedAt):
+    if not (selection or domainName or ip1 or ip2 or ip3 or ip4 or port or meterType or CreateAt or UpdatedAt):
         # page = request.args.get("page", default=1, type=int)
         # the offset of current query
         # values = {"off": int((page-1)*40)}
@@ -74,33 +77,67 @@ async def get_meter_list():
         tmpStr = ""
         paramValues = {}
         # SELECT * FROM meters WHERE ip like "%.168.%.82";
-        if not(ip1 or ip2 or ip3 or ip4):
-            pass
-        else:
+
+        # if not selection == "none":
+        #     if not(ip1 or ip2 or ip3 or ip4):
+        #         pass
+        #     else:
+        #         tmpStr = " ip like :ip "
+        #         ipStr = ""
+        #         if ip1:
+        #             ipStr += (ip1)
+        #         else:
+        #             ipStr += "%"
+        #         ipStr += "."
+        #         if ip2:
+        #             ipStr += (ip2)
+        #         else:
+        #             ipStr += "%"
+        #         ipStr += "."
+        #         if ip3:
+        #             ipStr += (ip3)
+        #         else:
+        #             ipStr += "%"
+        #         ipStr += "."
+        #         if ip4:
+        #             ipStr += (ip4)
+        #         else:
+        #             ipStr += "%"
+        #         paramValues["ip"] = ipStr
+        #         q.put(tmpStr)
+        #         tmpStr = ""
+
+        if not selection == "none":
             tmpStr = " ip like :ip "
-            ipStr = ""
-            if ip1:
-                ipStr += (ip1)
+
+            if domainName:
+                paramValues["ip"] = "%" + str(domainName)+"%"
+                q.put(tmpStr)
+                tmpStr = ""
             else:
-                ipStr += "%"
-            ipStr += "."
-            if ip2:
-                ipStr += (ip2)
-            else:
-                ipStr += "%"
-            ipStr += "."
-            if ip3:
-                ipStr += (ip3)
-            else:
-                ipStr += "%"
-            ipStr += "."
-            if ip4:
-                ipStr += (ip4)
-            else:
-                ipStr += "%"
-            paramValues["ip"] = ipStr
-            q.put(tmpStr)
-            tmpStr = ""
+                ipStr = ""
+                if ip1:
+                    ipStr += (ip1)
+                else:
+                    ipStr += "%"
+                ipStr += "."
+                if ip2:
+                    ipStr += (ip2)
+                else:
+                    ipStr += "%"
+                ipStr += "."
+                if ip3:
+                    ipStr += (ip3)
+                else:
+                    ipStr += "%"
+                ipStr += "."
+                if ip4:
+                    ipStr += (ip4)
+                else:
+                    ipStr += "%"
+                paramValues["ip"] = ipStr
+                q.put(tmpStr)
+                tmpStr = ""
 
         if port:
             tmpStr += ' port = :port '
