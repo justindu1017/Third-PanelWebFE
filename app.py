@@ -32,9 +32,10 @@ async def getPost():
     else:
         ip = form["domainName"]
     port = form["port"]
-    values = {"ip": ip, "port": port}
+    meterType = form["meterType"]
+    values = {"ip": ip, "port": port, "meter_type": meterType}
     async with database as db:
-        query = "INSERT INTO meters(ip, port) VALUES (:ip, :port)"
+        query = "INSERT INTO meters(ip, port, meter_type) VALUES (:ip, :port, :meter_type)"
         await db.execute(query=query, values=values)
         await db.disconnect()
     return redirect("/")
@@ -76,36 +77,6 @@ async def get_meter_list():
         q = queue.Queue()
         tmpStr = ""
         paramValues = {}
-        # SELECT * FROM meters WHERE ip like "%.168.%.82";
-
-        # if not selection == "none":
-        #     if not(ip1 or ip2 or ip3 or ip4):
-        #         pass
-        #     else:
-        #         tmpStr = " ip like :ip "
-        #         ipStr = ""
-        #         if ip1:
-        #             ipStr += (ip1)
-        #         else:
-        #             ipStr += "%"
-        #         ipStr += "."
-        #         if ip2:
-        #             ipStr += (ip2)
-        #         else:
-        #             ipStr += "%"
-        #         ipStr += "."
-        #         if ip3:
-        #             ipStr += (ip3)
-        #         else:
-        #             ipStr += "%"
-        #         ipStr += "."
-        #         if ip4:
-        #             ipStr += (ip4)
-        #         else:
-        #             ipStr += "%"
-        #         paramValues["ip"] = ipStr
-        #         q.put(tmpStr)
-        #         tmpStr = ""
 
         if not selection == "none":
             tmpStr = " ip like :ip "

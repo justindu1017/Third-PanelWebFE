@@ -1,0 +1,2 @@
+class GetRegistersException(Exception):
+    pass

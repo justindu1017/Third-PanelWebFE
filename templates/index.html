@@ -96,6 +96,22 @@ headAddOn%}
           </div>
         </div>
       </div>
+      <div class="py-2 mb-5">
+        <label for="meterType">Meter Type:</label>
+        <input list="meterListEl" id="meterType" name="meterType" 
+        class="px-1 w-1/2 number rounded-md border-gray-500 border-opacity-100 border mt-2 h-10"
+        />
+        
+        <datalist id="meterListEl">
+            <option value="1">
+            <option value="2">
+            <option value="3">
+            <option value="4">
+            <option value="5">
+        </datalist>
+        
+      </div>
+      
       <div id="PortSec" class="py-2 mb-5">
         <span>port:</span>
         <input
@@ -156,7 +172,7 @@ headAddOn%}
           確認
         </button>
         <button
-          class="px-4 bg-transparent text-lg px-2 py-1 w-40  rounded-lg text-indigo-500 hover:bg-gray-100 hover:text-indigo-400 mr-2"
+          class="px-4 bg-transparent text-lg  py-1 w-40  rounded-lg text-indigo-500 hover:bg-gray-100 hover:text-indigo-400 mr-2"
           onclick="toggleModal()"
         >
           關閉

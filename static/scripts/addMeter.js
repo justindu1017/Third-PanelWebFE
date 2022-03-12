@@ -150,8 +150,12 @@ function toggleModal() {
     newDiv.classList.add("text-2xl");
     modalDiv.appendChild(newDiv);
   }
-
   let newDiv = document.createElement("div");
+  newDiv.innerHTML =
+    "Meter Type: " + document.querySelector("#meterType").value;
+  newDiv.classList.add("text-2xl");
+  modalDiv.appendChild(newDiv);
+  newDiv = document.createElement("div");
   newDiv.innerHTML = "Port: " + document.querySelector("#port").value;
   newDiv.classList.add("text-2xl");
   modalDiv.appendChild(newDiv);
@@ -166,6 +170,10 @@ function checkValue() {
       if (ipVal == "" || ipVal.length > 3 || ipVal > 255) {
         msg += "請確認ip的第" + (index + 1) + "欄\n";
       }
+    }
+    const meterType = document.querySelector("#meterType").value;
+    if (meterType == "") {
+      msg += "請確認Meter Type\n";
     }
     const portVal = document.querySelector("#port").value;
     if (portVal.length > 5 || portVal > 65534 || portVal < 0 || portVal == "") {
