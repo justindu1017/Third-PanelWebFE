@@ -50,3 +50,12 @@ document.querySelector("#UseDomain").addEventListener("change", () => {
     i.disabled = true;
   }
 });
+
+function delIP(ip) {
+  console.log(ip);
+  fetch("del/" + ip, {
+    method: "DELETE",
+  }).then((response) => {
+    window.location.href = window.location.href;
+  });
+}

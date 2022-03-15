@@ -12,25 +12,34 @@ src="{{ url_for('static', filename='scripts/meterListPre.js') }} "
 {% endblock headAddOn%} 
 {% block content%}
 <div class="flex flex-col w-auto mt-9 bg-white rounded-xl h-5/6 text-xl">
-  <div class="flex w-full justify-around ">
-    <div class="w-1/6 text-center text-lg">ID</div>
-    <div class="w-1/6 text-center text-lg">IP</div>
-    <div class="w-1/6 text-center text-lg">Port</div>
-    <div class="w-1/6 text-center text-lg">Meter Type</div>
-    <div class="w-1/6 text-center text-lg">Created At</div>
-    <div class="w-1/6 text-center text-lg">Updated At</div>
+  <div class="flex w-full ">
+    <div class=" w-1/12 text-center text-lg">功能</div>
+    <div class="flex w-full justify-around">
+      <div class="w-1/6 text-center text-lg">ID</div>
+      <div class="w-1/6 text-center text-lg">IP</div>
+      <div class="w-1/6 text-center text-lg">Port</div>
+      <div class="w-1/6 text-center text-lg">Meter Type</div>
+      <div class="w-1/6 text-center text-lg">Created At</div>
+      <div class="w-1/6 text-center text-lg">Updated At</div>
+    </div>
+
   </div>
   <div id="meterList" class="overflow-y-scroll">
     <div>
       {% for info in infos %}
-      <div class="flex w-full justify-around  hover:bg-slate-200 duration-75 ">
-        <div class="w-1/6 text-center text-lg flex items-center justify-center">{{ info[0] }}</div>
-        <div class="w-1/6 text-center text-lg flex items-center justify-center">{{ info[1] }}</div>
-        <div class="w-1/6 text-center text-lg flex items-center justify-center">{{ info[2] }}</div>
-        <div class="w-1/6 text-center text-lg flex items-center justify-center">{{ info[3] }}</div>
-        <div class="w-1/6 text-center text-lg flex items-center justify-center">{{ info[5].strftime('%Y-%m-%d  %H:%M') }}</div>
-        <div class="w-1/6 text-center text-lg flex items-center justify-center">{{ info[6].strftime('%Y-%m-%d  %H:%M') }}</div>
-      </div>
+      <div class="flex w-full  hover:bg-slate-200 duration-75 ">
+        <div class="w-1/12 text-center text-lg flex items-center justify-center p-3">
+          <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onclick="delIP({{info[0]}})">DEL </button>
+        </div>
+        <div class="flex w-full justify-around">
+          <div class="w-1/6 text-center text-lg flex items-center justify-center">{{ info[0] }}</div>
+          <div class="w-1/6 text-center text-lg flex items-center justify-center">{{ info[1] }}</div>
+          <div class="w-1/6 text-center text-lg flex items-center justify-center">{{ info[2] }}</div>
+          <div class="w-1/6 text-center text-lg flex items-center justify-center">{{ info[3] }}</div>
+          <div class="w-1/6 text-center text-lg flex items-center justify-center">{{ info[5].strftime('%Y-%m-%d  %H:%M') }}</div>
+          <div class="w-1/6 text-center text-lg flex items-center justify-center">{{ info[6].strftime('%Y-%m-%d  %H:%M') }}</div>  
+        </div>
+       </div>
       {% endfor%}  
     </div>
   </div>
