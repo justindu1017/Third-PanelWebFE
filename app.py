@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 import os
 import asyncio
 import queue
-from numpy import insert
 from sqlalchemy import Integer
 import json
 from datetime import datetime, timedelta, date
@@ -18,6 +17,8 @@ from pymodbus.client.sync import ModbusTcpClient as Client
 from get_data import get_registers_by_address
 from pymodbus.exceptions import ConnectionException
 from multiprocessing import Process, Value
+import queue as queue
+import functools
 
 database = Database(
     f'mysql://root:28017103@127.0.0.1:3306/meters')
@@ -186,12 +187,16 @@ def main():
     app.run()
 
 
+def addTimeTag(timeArg):
+    n["lastUpdate"] = timeArg
+    return n
+
+
 def checkHealth(host: str, port: str, regi: int = 1, count: int = 0):
     client = Client(host=host, port=port)
     try:
 
         r = get_registers_by_address(client=client, address=regi, count=count)
-        print(r)
         return r
     except ConnectionException as e:
         return None
@@ -199,31 +204,48 @@ def checkHealth(host: str, port: str, regi: int = 1, count: int = 0):
 
 async def fetchDB():
     async with database as db:
+        res = {}
         # search for pages
-        query = "SELECT * FROM `meters`;"
-        result = await db.fetch_all(query=query)
+        query = "SELECT health_check FROM `meters` GROUP by health_check;"
+        health_checks = await db.fetch_all(query=query)
+        # print(health_checks)
+        
+        for health_check in health_checks:
+            qq = "SELECT id, ip FROM `meters` where health_check=:health_check"
+            results = await db.fetch_all(query=qq,values={"health_check":health_check[0]})
+            obj = {}
+            
+            obj[str(health_check[0])] = {}
+            obj[str(health_check[0])]["lists"] = results
+            res = {**res, **obj}
         await db.disconnect()
-    return result
+    return res
 
 
 def startHealthCheck():
     # fetch all data from db
-    # print("res = ", res[0])
-
-    # while loop all the ips
+    # create a queue for ips that are ready to check health
+    readyQueue = queue.Queue()
+    res = asyncio.get_event_loop().run_until_complete(asyncio.gather(fetchDB()))[0]
+    nowT = time.time()
+    print((res))
+    for Obj in res:
+        print("obj = ", res(Obj))
+        # Obj["timeTag"] = nowT
+        # print("obj = ", Obj)
+    
     while True:
-        res = asyncio.get_event_loop().run_until_complete(asyncio.gather(fetchDB()))
-        for info in res[0]:
-            print("IP: ", info[0])
+        T = time.time()
+        for Obj in res:
+            # if res
+            pass
             # checkHealth(host=info[1], port=info[2], regi=5, count=2)
-            checkHealth(host='192.168.1.180', port='502', regi=5, count=2)
-            sleep(1.5)
-
+            # checkHealth(host='192.168.1.180', port='502', regi=5, count=2)
 
 if __name__ == '__main__':
     # p = Process(target=checkHealth, args=(5, 2,))
-    # p = Process(target=startHealthCheck)
-    # p.start()
+    p = Process(target=startHealthCheck)
+    p.start()
     main()
     # TPush
     # p.join()
