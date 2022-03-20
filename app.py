@@ -26,7 +26,7 @@ import concurrent.futures
 database = Database(
     f'mysql://root:28017103@127.0.0.1:3306/meters')
 
-# readyQueue = Queue()
+newIPQueue = Queue()
 
 
 app = Flask(__name__)
@@ -44,10 +44,18 @@ async def index():
             ip = form["domainName"]
         port = form["port"]
         meterType = form["meterType"]
-        values = {"ip": ip, "port": port, "meter_type": meterType}
+        health_check = form["health_check"]
+        values = {"ip": ip, "port": port,
+                  "meter_type": meterType, "health_check": health_check}
         async with database as db:
-            query = "INSERT INTO meters(ip, port, meter_type) VALUES (:ip, :port, :meter_type); select LAST_INSERT_ID(); "
+            query = "INSERT INTO meters(ip, port, meter_type, health_check) VALUES (:ip, :port, :meter_type, :health_check); select LAST_INSERT_ID(); "
             retID = await db.execute(query=query, values=values)
+            newIPProfile = []
+            newIPProfile.append(retID)
+            newIPProfile.append(ip)
+            newIPProfile.append(port)
+            newIPQueue.put(newIPProfile)
+
             await db.disconnect()
         return redirect("/")
 
@@ -278,7 +286,6 @@ def startHealthCheck():
 
 
 if __name__ == '__main__':
-    # p = Process(target=checkHealth, args=(5, 2,))
-    # p = Process(target=startHealthCheck)
-    # p.start()
+    p = Process(target=startHealthCheck)
+    p.start()
     main()
