@@ -20,13 +20,13 @@ document.querySelector("#UseDomain").addEventListener("change", () => {
 document.querySelectorAll(".number").forEach(function (el) {
   // force enter number
   function onInputNum(e) {
-    if (
-      ((e.which != 8 && e.which != 0 && e.which < 48 && e.which != 13) ||
-        e.which > 57) &&
-      this.id != "domainName"
-    ) {
-      e.preventDefault();
-    }
+    // if (
+    //   ((e.which != 8 && e.which != 0 && e.which < 48 && e.which != 13) ||
+    //     e.which > 57) &&
+    //   this.id != "domainName"
+    // ) {
+    //   e.preventDefault();
+    // }
 
     // switch to next input
     if (this.value.length >= this.maxLength && this.id != "port") {
@@ -196,6 +196,11 @@ function checkValue() {
 
     if (portVal.length > 5 || portVal > 65534 || portVal < 0 || portVal == "") {
       msg += "請確認port\n";
+    }
+    const health_check = document.querySelector("#health_check").value;
+
+    if (health_check == "") {
+      msg += "請確認檢查間距 \n";
     }
     if (msg) {
       msg += "是否正確";

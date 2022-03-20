@@ -1,6 +1,7 @@
 from asyncio.runners import run
 from concurrent.futures import process
 from distutils.log import info
+from ntpath import join
 from flask import Flask, render_template, request, redirect, jsonify, abort
 from databases import Database
 from dotenv import load_dotenv
@@ -17,11 +18,15 @@ from pymodbus.client.sync import ModbusTcpClient as Client
 from get_data import get_registers_by_address
 from pymodbus.exceptions import ConnectionException
 from multiprocessing import Process, Value
-import queue as queue
+import threading
+from queue import Queue
 import functools
+import concurrent.futures
 
 database = Database(
     f'mysql://root:28017103@127.0.0.1:3306/meters')
+
+# readyQueue = Queue()
 
 
 app = Flask(__name__)
@@ -41,8 +46,8 @@ async def index():
         meterType = form["meterType"]
         values = {"ip": ip, "port": port, "meter_type": meterType}
         async with database as db:
-            query = "INSERT INTO meters(ip, port, meter_type) VALUES (:ip, :port, :meter_type)"
-            await db.execute(query=query, values=values)
+            query = "INSERT INTO meters(ip, port, meter_type) VALUES (:ip, :port, :meter_type); select LAST_INSERT_ID(); "
+            retID = await db.execute(query=query, values=values)
             await db.disconnect()
         return redirect("/")
 
@@ -187,19 +192,37 @@ def main():
     app.run()
 
 
-def addTimeTag(timeArg):
-    n["lastUpdate"] = timeArg
-    return n
+def toJson(arr):
+    tmp = []
+    tmp.append(arr[0])
+    tmp.append(arr[1])
+    tmp.append(arr[2])
+    return tmp
 
 
 def checkHealth(host: str, port: str, regi: int = 1, count: int = 0):
-    client = Client(host=host, port=port)
+    # client = Client(host=host, port=port)
+    client = Client(host='192.168.1.180', port='502')
+
     try:
 
         r = get_registers_by_address(client=client, address=regi, count=count)
         return r
     except ConnectionException as e:
         return None
+
+
+def implementCheckHealth(obj):
+    print("now doing...", obj[0])
+    checkHealth(host=obj[1], port=obj[2], regi=5, count=2)
+    # TODO update DB
+
+
+def checkQueue(arr):
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        results = executor.map(implementCheckHealth, arr)
+
+        print("\n")
 
 
 async def fetchDB():
@@ -209,12 +232,12 @@ async def fetchDB():
         query = "SELECT health_check FROM `meters` GROUP by health_check;"
         health_checks = await db.fetch_all(query=query)
         # print(health_checks)
-        
+
         for health_check in health_checks:
-            qq = "SELECT id, ip FROM `meters` where health_check=:health_check"
-            results = await db.fetch_all(query=qq,values={"health_check":health_check[0]})
+            qq = "SELECT id, ip, port FROM `meters` where health_check=:health_check"
+            results = await db.fetch_all(query=qq, values={"health_check": health_check[0]})
+            results = [toJson(result) for result in results]
             obj = {}
-            
             obj[str(health_check[0])] = {}
             obj[str(health_check[0])]["lists"] = results
             res = {**res, **obj}
@@ -223,29 +246,39 @@ async def fetchDB():
 
 
 def startHealthCheck():
+    print("SHC")
     # fetch all data from db
     # create a queue for ips that are ready to check health
-    readyQueue = queue.Queue()
-    res = asyncio.get_event_loop().run_until_complete(asyncio.gather(fetchDB()))[0]
+    res = asyncio.get_event_loop().run_until_complete(
+        asyncio.gather(fetchDB()))[0]
     nowT = time.time()
-    print((res))
     for Obj in res:
-        print("obj = ", res(Obj))
-        # Obj["timeTag"] = nowT
-        # print("obj = ", Obj)
-    
+        res[Obj]["timeTag"] = nowT
+
+    readyList = []
+    checkQueueT = threading.Thread(target=checkQueue, args=(readyList,))
+
     while True:
         T = time.time()
-        for Obj in res:
-            # if res
-            pass
-            # checkHealth(host=info[1], port=info[2], regi=5, count=2)
-            # checkHealth(host='192.168.1.180', port='502', regi=5, count=2)
+        for el in res:
+            # print("checking: ", el)
+            if T - int(res[el]["timeTag"]) >= int(el):
+                # print("get: ", el)
+                readyList += res[el]["lists"]
+                res[el]["timeTag"] = T
+        if readyList and not checkQueueT.is_alive():
+            checkQueueT.start()
+            readyList = []
+            checkQueueT = threading.Thread(
+                target=checkQueue, args=(readyList,))
+
+        # pass
+        # checkHealth(host=info[1], port=info[2], regi=5, count=2)
+        # checkHealth(host='192.168.1.180', port='502', regi=5, count=2)
+
 
 if __name__ == '__main__':
     # p = Process(target=checkHealth, args=(5, 2,))
-    p = Process(target=startHealthCheck)
-    p.start()
+    # p = Process(target=startHealthCheck)
+    # p.start()
     main()
-    # TPush
-    # p.join()

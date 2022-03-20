@@ -27,6 +27,8 @@ headAddOn%}
           <span>ip address:</span>
           <div class="w-full whitespace-nowrap mt-2">
             <input
+              oninput="if(value.length>3)value=value.slice(0,3)"
+              onkeyup="value=value.replace(/[^\d]/g,'')"
               id="ip1"
               type="number"
               class="ipClass px-1 number one rounded-md border-gray-500 border-opacity-100 border h-10"
@@ -40,6 +42,8 @@ headAddOn%}
             <span>.</span>
             <input
               id="ip2"
+              oninput="if(value.length>3)value=value.slice(0,3)"
+              onkeyup="value=value.replace(/[^\d]/g,'')"
               type="number"
               class="ipClass px-1 number two rounded-md border-gray-500 border-opacity-100 border h-10"
               style="width: 23.6%;"
@@ -52,6 +56,8 @@ headAddOn%}
             <span>.</span>
             <input
               id="ip3"
+              oninput="if(value.length>3)value=value.slice(0,3)"
+              onkeyup="value=value.replace(/[^\d]/g,'')"
               type="number"
               class="ipClass px-1 number three rounded-md border-gray-500 border-opacity-100 border h-10"
               style="width: 23.6%;"
@@ -64,6 +70,8 @@ headAddOn%}
             <span>.</span>
             <input
               id="ip4"
+              oninput="if(value.length>3)value=value.slice(0,3)"
+              onkeyup="value=value.replace(/[^\d]/g,'')"
               type="number"
               class="ipClass px-1 number four rounded-md border-gray-500 border-opacity-100 border h-10"
               style="width: 23.6%;"
@@ -115,8 +123,11 @@ headAddOn%}
       <div id="PortSec" class="py-2 mb-5">
         <span>port:</span>
         <input
-
-          type="text"
+          type="number"
+          oninput="if(value.length>5)value=value.slice(0,5)"
+          onkeyup="value=value.replace(/[^\d]/g,'')"
+          autocomplete="off" 
+          
           class="px-1 w-1/2 number rounded-md border-gray-500 border-opacity-100 border mt-2 h-10"
           max="65534"
           min="0"
@@ -126,6 +137,22 @@ headAddOn%}
           placeholder="502"
           id="port"
           name="port"
+          inputmode="numeric"
+        />
+      </div>
+
+      <div id="PortSec" class="py-2 mb-5">
+        <span>檢查間距
+          :</span>
+        <input
+          type="text"
+          class="px-1 w-1/2 number rounded-md border-gray-500 border-opacity-100 border mt-2 h-10"
+          
+          onkeyup="value=value.replace(/[^\d]/g,'')"
+          min="0"
+          pattern="\d*"
+          id="health_check"
+          name="health_check"
           inputmode="numeric"
         />
       </div>
