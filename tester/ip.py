@@ -9,12 +9,13 @@ def index(regi: int = 1, count: int = 0):
     try:
 
         r = get_registers_by_address(client=client, address=regi, count=count)
-        print(r)
         return r
     except ConnectionException as e:
         return None
 
 
 # while True:
-index(regi=5, count=2)
+r = index(regi=5, count=2)
+
+print(r)
 sleep(0.3)

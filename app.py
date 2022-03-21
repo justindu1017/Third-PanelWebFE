@@ -2,6 +2,7 @@ from asyncio.runners import run
 from concurrent.futures import process
 from distutils.log import info
 from ntpath import join
+from traceback import print_tb
 from flask import Flask, render_template, request, redirect, jsonify, abort
 from databases import Database
 from dotenv import load_dotenv
@@ -217,21 +218,41 @@ def checkHealth(host: str, port: str, regi: int = 1, count: int = 0):
 
     try:
 
-        r = get_registers_by_address(client=client, address=regi, count=count)
-        return r
+        # r = get_registers_by_address(client=client, address=regi, count=count)
+        # return r
+        return True
     except ConnectionException as e:
         return None
 
 
-def implementCheckHealth(obj):
-    print("now doing...", obj[0])
-    checkHealth(host=obj[1], port=obj[2], regi=5, count=2)
+async def implementCheckHealth(obj: dict, time):
+    # print("now doing...", obj[0])
+    r = checkHealth(host=obj[1], port=obj[2], regi=5, count=2)
     # TODO update DB
+    if r:
+        async with database as db:
+            query = "UPDATE meters SET updated_at = :updated_at WHERE id = :id;"
+            a = await db.execute(query=query, values={"updated_at": time, "id": obj[0]})
+            # print(a)
+            await db.disconnect()
+            print("finish ", obj[0])
 
 
-def checkQueue(arr):
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        results = executor.map(implementCheckHealth, arr)
+def wrapper(coro):
+    # asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    return loop.run_until_complete(coro)
+
+
+def checkQueue(arr, timeT):
+    timeT = datetime.fromtimestamp(
+        timeT).strftime('%Y-%m-%d %H:%M:%S')
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        arr = [implementCheckHealth(obj, timeT) for obj in arr]
+        results = executor.map(wrapper, arr)
+        # results = [executor.submit(
+        #     implementCheckHealth, obj, timeT) for obj in arr]
         print("\n")
 
 
@@ -268,17 +289,20 @@ def startHealthCheck():
         res[Obj]["timeTag"] = nowT
 
     readyList = []
-    checkQueueT = threading.Thread(target=checkQueue, args=(readyList,))
+    # threadList = []
+    T = time.time()
+
+    checkQueueT = threading.Thread(target=checkQueue, args=(readyList, T,))
 
     while True:
         if not delIPQueue.empty():
             while not delIPQueue.empty():
                 delIP = delIPQueue.get()
-                print("delIP is ", delIP)
+                # print("delIP is ", delIP)
                 for i, li in enumerate(res[str(delIP[0])]["lists"]):
-                    print(li)
+                    # print(li)
                     if delIP[1] in li:
-                        print("DEL: ", res[str(delIP[0])]["lists"][i])
+                        # print("DEL: ", res[str(delIP[0])]["lists"][i])
                         del res[str(delIP[0])]["lists"][i]
 
         if not newIPQueue.empty():
@@ -304,7 +328,7 @@ def startHealthCheck():
             checkQueueT.start()
             readyList = []
             checkQueueT = threading.Thread(
-                target=checkQueue, args=(readyList,))
+                target=checkQueue, args=(readyList, T,))
 
         # pass
         # checkHealth(host=info[1], port=info[2], regi=5, count=2)
