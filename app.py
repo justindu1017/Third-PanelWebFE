@@ -27,7 +27,7 @@ database = Database(
     f'mysql://root:28017103@127.0.0.1:3306/meters')
 
 newIPQueue = Queue()
-
+delIPQueue = Queue()
 
 app = Flask(__name__)
 
@@ -84,7 +84,6 @@ async def get_meter_list():
             getPageQuery = "SELECT CEILING(count(id)/40) FROM `meters`;"
             query = "SELECT * FROM `meters` LIMIT 40 OFFSET :off;"
             pages = await db.fetch_all(query=getPageQuery)
-            print(pages)
             infos = await db.fetch_all(query=query, values=values)
             await db.disconnect()
         if page > pages[0][0]+1:
@@ -176,12 +175,11 @@ async def get_meter_list():
             getPageQuery = "SELECT FLOOR(count(id)/40) FROM `meters` where " + \
                 queryStr+";"
             query = 'SELECT * FROM `meters` where '+queryStr + " LIMIT 40 OFFSET :off;"
-            print(query)
             pages = await db.fetch_all(query=getPageQuery, values=paramValues)
             paramValues["off"] = int((page-1)*40)
-            print(paramValues)
+
             infos = await db.fetch_all(query=query, values=paramValues)
-            print(infos)
+
             await db.disconnect()
 
         return render_template("nav.html", pages=pages[0][0]+1, infos=infos, page=page)
@@ -189,11 +187,15 @@ async def get_meter_list():
 
 @app.route("/del/<id>", methods=["DELETE"])
 async def delID(id):
-    print("deleting id ", id)
+
     async with database as db:
+        getTime = "select health_check from meters WHERE id = :id;"
         query = "DELETE FROM meters WHERE id = :id;"
+        time_for_del = await db.fetch_one(query=getTime, values={"id": id})
         await db.execute(query=query, values={"id": id})
         await db.disconnect()
+
+        delIPQueue.put([time_for_del[0], int(id)])
     return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
 
 
@@ -239,7 +241,6 @@ async def fetchDB():
         # search for pages
         query = "SELECT health_check FROM `meters` GROUP by health_check;"
         health_checks = await db.fetch_all(query=query)
-        # print(health_checks)
 
         for health_check in health_checks:
             qq = "SELECT id, ip, port FROM `meters` where health_check=:health_check"
@@ -270,7 +271,15 @@ def startHealthCheck():
     checkQueueT = threading.Thread(target=checkQueue, args=(readyList,))
 
     while True:
-        # print(res)
+        if not delIPQueue.empty():
+            while not delIPQueue.empty():
+                delIP = delIPQueue.get()
+                print("delIP is ", delIP)
+                for i, li in enumerate(res[str(delIP[0])]["lists"]):
+                    print(li)
+                    if delIP[1] in li:
+                        print("DEL: ", res[str(delIP[0])]["lists"][i])
+                        del res[str(delIP[0])]["lists"][i]
 
         if not newIPQueue.empty():
             while not newIPQueue.empty():
@@ -288,7 +297,7 @@ def startHealthCheck():
         T = time.time()
         for el in res:
             if (T - int(res[el]["timeTag"])) >= int(el):
-                # print("get: ", el)
+
                 readyList += res[el]["lists"]
                 res[el]["timeTag"] = T
         if readyList and not checkQueueT.is_alive():

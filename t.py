@@ -63,13 +63,22 @@
 #     p.start()
 
 
-a = {"L": [[2, 3]]}
+# a = {"L": [[2, 3]]}
 
-b = ["L", 6, 5]
-if not b[0] in a:
-    a[b[0]] = []
-    a[b[0]].append([b[1], b[2]])
-else:
-    a[b[0]].append([b[1], b[2]])
+# b = ["L", 6, 5]
+# if not b[0] in a:
+#     a[b[0]] = []
+#     a[b[0]].append([b[1], b[2]])
+# else:
+#     a[b[0]].append([b[1], b[2]])
 
+# print(a)
+
+
+a = ["a", "b", "rrr"]
+# if "b" in a:
+#     a.remove("b")
+#     print(a)
+
+del a[1]
 print(a)
