@@ -51,6 +51,7 @@ async def index():
             query = "INSERT INTO meters(ip, port, meter_type, health_check) VALUES (:ip, :port, :meter_type, :health_check); select LAST_INSERT_ID(); "
             retID = await db.execute(query=query, values=values)
             newIPProfile = []
+            newIPProfile.append(int(health_check))
             newIPProfile.append(retID)
             newIPProfile.append(ip)
             newIPProfile.append(port)
@@ -229,7 +230,6 @@ def implementCheckHealth(obj):
 def checkQueue(arr):
     with concurrent.futures.ThreadPoolExecutor() as executor:
         results = executor.map(implementCheckHealth, arr)
-
         print("\n")
 
 
@@ -257,7 +257,10 @@ def startHealthCheck():
     print("SHC")
     # fetch all data from db
     # create a queue for ips that are ready to check health
-    res = asyncio.get_event_loop().run_until_complete(
+
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    res = loop.run_until_complete(
         asyncio.gather(fetchDB()))[0]
     nowT = time.time()
     for Obj in res:
@@ -267,10 +270,24 @@ def startHealthCheck():
     checkQueueT = threading.Thread(target=checkQueue, args=(readyList,))
 
     while True:
+        # print(res)
+
+        if not newIPQueue.empty():
+            while not newIPQueue.empty():
+                newIP = newIPQueue.get()
+                if not newIP[0] in res:
+                    res[newIP[0]] = {}
+                    res[newIP[0]]["lists"] = []
+                    res[newIP[0]]["lists"].append([newIP[1], newIP[2]])
+                    res[newIP[0]]["timeTag"] = nowT
+
+                else:
+                    res[newIP[0]]["lists"].append([newIP[1], newIP[2]])
+                    res[newIP[0]]["timeTag"] = nowT
+
         T = time.time()
         for el in res:
-            # print("checking: ", el)
-            if T - int(res[el]["timeTag"]) >= int(el):
+            if (T - int(res[el]["timeTag"])) >= int(el):
                 # print("get: ", el)
                 readyList += res[el]["lists"]
                 res[el]["timeTag"] = T
@@ -286,6 +303,6 @@ def startHealthCheck():
 
 
 if __name__ == '__main__':
-    p = Process(target=startHealthCheck)
+    p = threading.Thread(target=startHealthCheck)
     p.start()
     main()

@@ -1,0 +1,13 @@
+POST https://localhost:5000/ HTTP/1.1
+Content-Type: multipart/form-data;
+
+{
+    "selection":"UseIP",
+    "ip1":"1",
+    "ip2":"2",
+    "ip3":"3",
+    "ip4":"4",
+    "health_check":"33",
+    "port":"520",
+    "meterType":"2"
+}
