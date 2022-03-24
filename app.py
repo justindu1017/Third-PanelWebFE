@@ -2,6 +2,7 @@ from asyncio.runners import run
 from concurrent.futures import process
 from distutils.log import info
 from ntpath import join
+from telnetlib import STATUS
 from traceback import print_tb
 from flask import Flask, render_template, request, redirect, jsonify, abort
 from databases import Database
@@ -9,6 +10,7 @@ from dotenv import load_dotenv
 import os
 import asyncio
 import queue
+from matplotlib.cbook import print_cycles
 from sqlalchemy import Integer
 import json
 from datetime import datetime, timedelta, date
@@ -58,7 +60,6 @@ async def index():
             newIPProfile.append(port)
             newIPQueue.put(newIPProfile)
 
-            await db.disconnect()
         return redirect("/")
 
 
@@ -86,7 +87,7 @@ async def get_meter_list():
             query = "SELECT * FROM `meters` LIMIT 40 OFFSET :off;"
             pages = await db.fetch_all(query=getPageQuery)
             infos = await db.fetch_all(query=query, values=values)
-            await db.disconnect()
+            # await db.disconnect()
         if page > pages[0][0]+1:
             return redirect("/meter_list?page="+str(pages[0][0]+1))
         while(not infos and not page == 1):
@@ -181,7 +182,7 @@ async def get_meter_list():
 
             infos = await db.fetch_all(query=query, values=paramValues)
 
-            await db.disconnect()
+            # await db.disconnect()
 
         return render_template("nav.html", pages=pages[0][0]+1, infos=infos, page=page)
 
@@ -194,7 +195,7 @@ async def delID(id):
         query = "DELETE FROM meters WHERE id = :id;"
         time_for_del = await db.fetch_one(query=getTime, values={"id": id})
         await db.execute(query=query, values={"id": id})
-        await db.disconnect()
+        # await db.disconnect()
 
         delIPQueue.put([time_for_del[0], int(id)])
     return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
@@ -218,9 +219,9 @@ def checkHealth(host: str, port: str, regi: int = 1, count: int = 0):
 
     try:
 
-        # r = get_registers_by_address(client=client, address=regi, count=count)
-        # return r
-        return True
+        r = get_registers_by_address(client=client, address=regi, count=count)
+        return r
+        # return True
     except ConnectionException as e:
         return None
 
@@ -229,13 +230,21 @@ async def implementCheckHealth(obj: dict, time):
     # print("now doing...", obj[0])
     r = checkHealth(host=obj[1], port=obj[2], regi=5, count=2)
     # TODO update DB
-    if r:
-        async with database as db:
-            query = "UPDATE meters SET updated_at = :updated_at WHERE id = :id;"
-            a = await db.execute(query=query, values={"updated_at": time, "id": obj[0]})
-            # print(a)
-            await db.disconnect()
-            print("finish ", obj[0])
+    async with database as db:
+        query = "insert into health_check_log (meter_id, content) VALUES (:meter_id, :content);"
+        # if r:
+        #     await db.execute(query=query, values={"meter_id": obj[0], "content": {"health": 1}})
+        # else:
+        isHealth = 0
+        if r:
+            isHealth = 1
+
+        await db.execute(query=query, values={"meter_id": obj[0], "content": json.dumps({"health": isHealth})})
+        print("eeeee")
+        print(obj[0])
+        print(isHealth)
+
+        print("finish ", obj[0])
 
 
 def wrapper(coro):
@@ -271,7 +280,7 @@ async def fetchDB():
             obj[str(health_check[0])] = {}
             obj[str(health_check[0])]["lists"] = results
             res = {**res, **obj}
-        await db.disconnect()
+        # await db.disconnect()
     return res
 
 
