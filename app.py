@@ -1,33 +1,27 @@
-from asyncio.runners import run
-from concurrent.futures import process
-from distutils.log import info
-from ntpath import join
-from telnetlib import STATUS
-from traceback import print_tb
 from flask import Flask, render_template, request, redirect, jsonify, abort
 from databases import Database
 from dotenv import load_dotenv
-import os
 import asyncio
 import queue
-from matplotlib.cbook import print_cycles
-from sqlalchemy import Integer
 import json
 from datetime import datetime, timedelta, date
 import time
-import sys
-from time import sleep
 from pymodbus.client.sync import ModbusTcpClient as Client
 from get_data import get_registers_by_address
 from pymodbus.exceptions import ConnectionException
-from multiprocessing import Process, Value
 import threading
 from queue import Queue
-import functools
 import concurrent.futures
+import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
+# print(os.getenv('Database_Route'))
 
 database = Database(
-    f'mysql://root:28017103@127.0.0.1:3306/meters')
+    os.getenv('Database_Route'))
 
 newIPQueue = Queue()
 delIPQueue = Queue()

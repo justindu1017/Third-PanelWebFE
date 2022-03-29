@@ -159,6 +159,12 @@ function toggleModal() {
   newDiv.innerHTML = "Port: " + document.querySelector("#port").value;
   newDiv.classList.add("text-2xl");
   modalDiv.appendChild(newDiv);
+
+  newDiv = document.createElement("div");
+  newDiv.innerHTML =
+    "檢查間距: " + document.querySelector("#health_check").value;
+  newDiv.classList.add("text-2xl");
+  modalDiv.appendChild(newDiv);
 }
 
 function checkValue() {
