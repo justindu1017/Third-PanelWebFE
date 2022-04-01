@@ -1,1 +1,1 @@
-Database_Route = "mysql://root:28017103@127.0.0.1:3306/meters"
+Database_Route = "mysql://DBName:DBPassword@IP:Port/DB"

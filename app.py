@@ -196,7 +196,8 @@ async def delID(id):
 
 
 def main():
-    app.run()
+    # app.run()
+    app.run(host='0.0.0.0')
 
 
 def toJson(arr):
@@ -234,10 +235,6 @@ async def implementCheckHealth(obj: dict, time):
             isHealth = 1
 
         await db.execute(query=query, values={"meter_id": obj[0], "content": json.dumps({"health": isHealth})})
-        print("eeeee")
-        print(obj[0])
-        print(isHealth)
-
         print("finish ", obj[0])
 
 

@@ -15,7 +15,7 @@ RUN pip install databases
 
 RUN pip install pymodbus
 
-
+RUN pip install flask[async]
 
 
 
