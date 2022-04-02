@@ -1,3 +1,4 @@
+from __future__ import print_function
 from distutils.log import error
 from flask import Flask, render_template, request, redirect, jsonify, abort
 from databases import Database
@@ -221,42 +222,76 @@ def checkHealth(host: str, port: str, regi: int = 1, count: int = 0):
         return None
 
 
-async def implementCheckHealth(obj: dict, time):
-    # print("now doing...", obj[0])
+async def implementCheckHealth(obj: dict):
+    print(obj)
     r = checkHealth(host=obj[1], port=obj[2], regi=5, count=2)
-    # TODO update DB
+    # r = True
+    print("here")
     async with database as db:
         query = "insert into health_check_log (meter_id, content) VALUES (:meter_id, :content);"
-        # if r:
-        #     await db.execute(query=query, values={"meter_id": obj[0], "content": {"health": 1}})
-        # else:
+
         isHealth = 0
         if r:
             isHealth = 1
 
         await db.execute(query=query, values={"meter_id": obj[0], "content": json.dumps({"health": isHealth})})
         print("finish ", obj[0])
+    return True
 
 
-def wrapper(coro, loop):
-    # asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    # !!!!!!!!!!!!!!!!
-    # loop = asyncio.new_event_loop()
+# def wrapper(loop, ip):
+#     asyncio.set_event_loop(loop)
+#     print("doing: ", ip)
+#     # task = loop.create_task(implementCheckHealth(ip))
+#     loop.run_until_complete(ip)
+
+# def wrapper(loop, ip):
+#     asyncio.set_event_loop(loop)
+#     print("wrapper: ", ip)
+#     task = loop.create_task(implementCheckHealth(ip))
+#     loop.run_until_complete(task)
+
+
+def checkQueue(arr, loop):
     asyncio.set_event_loop(loop)
-    return loop.run_until_complete(coro)
+
+    for ips in arr:
+        # loop.run_until_complete(implementCheckHealth(ips))
+        print(ips)
+        # loop.run_until_complete(implementCheckHealth(ips))
+        asyncio.run(implementCheckHealth(ips))
 
 
-def checkQueue(arr, timeT, loop):
-    timeT = datetime.fromtimestamp(
-        timeT).strftime('%Y-%m-%d %H:%M:%S')
-    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-        arr = [implementCheckHealth(obj, timeT) for obj in arr]
-        for task in arr:
-            executor.submit(wrapper, task, loop)
-        # results = executor.map(wrapper, arr)
-        # results = [executor.submit(
-        #     implementCheckHealth, obj, timeT) for obj in arr]
-        print("\n")
+# def checkQueue(arr, loop):
+#     asyncio.set_event_loop(loop=loop)
+#     a = asyncio.gather(*[implementCheckHealth(obj) for obj in arr])
+#     loop.run_until_complete(a)
+
+
+# def checkQueue(arr, loop):
+#     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+
+#         arr = [implementCheckHealth(obj) for obj in arr]
+#         print(arr)
+#         for task in arr:
+#             executor.submit(wrapper, loop, task)
+    # results = executor.map(wrapper, arr)
+    # results = [executor.submit(
+    #     implementCheckHealth, obj) for obj in arr]
+
+
+# def checkQueue(arr, timeT, loop):
+#     timeT = datetime.fromtimestamp(
+#         timeT).strftime('%Y-%m-%d %H:%M:%S')
+#     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+
+#         arr = [implementCheckHealth(obj, timeT) for obj in arr]
+#         for task in arr:
+#             print(task)
+#             executor.submit(wrapper, task, loop)
+    # results = executor.map(wrapper, arr)
+    # results = [executor.submit(
+    #     implementCheckHealth, obj, timeT) for obj in arr]
 
 
 async def fetchDB():
@@ -270,10 +305,12 @@ async def fetchDB():
             qq = "SELECT id, ip, port FROM `meters` where health_check=:health_check"
             results = await db.fetch_all(query=qq, values={"health_check": health_check[0]})
             results = [toJson(result) for result in results]
+
             obj = {}
             obj[str(health_check[0])] = {}
             obj[str(health_check[0])]["lists"] = results
             res = {**res, **obj}
+
         # await db.disconnect()
     return res
 
@@ -287,7 +324,7 @@ def startHealthCheck(loop):
     asyncio.set_event_loop(loop)
     res = loop.run_until_complete(
         asyncio.gather(fetchDB()))[0]
-
+    print("is: ", res)
     nowT = time.time()
     for Obj in res:
         res[Obj]["timeTag"] = nowT
@@ -297,9 +334,10 @@ def startHealthCheck(loop):
     T = time.time()
 
     checkQueueT = threading.Thread(
-        target=checkQueue, args=(readyList, T, loop,))
+        target=checkQueue, args=(readyList, loop,))
 
     while True:
+        # for ip waiting for delete
         if not delIPQueue.empty():
             while not delIPQueue.empty():
                 delIP = delIPQueue.get()
@@ -310,6 +348,7 @@ def startHealthCheck(loop):
                         # print("DEL: ", res[str(delIP[0])]["lists"][i])
                         del res[str(delIP[0])]["lists"][i]
 
+        # for ip that is newly added
         if not newIPQueue.empty():
             while not newIPQueue.empty():
                 newIP = newIPQueue.get()
@@ -333,7 +372,7 @@ def startHealthCheck(loop):
             checkQueueT.start()
             readyList = []
             checkQueueT = threading.Thread(
-                target=checkQueue, args=(readyList, T, loop,))
+                target=checkQueue, args=(readyList, loop,))
 
         # pass
         # checkHealth(host=info[1], port=info[2], regi=5, count=2)
