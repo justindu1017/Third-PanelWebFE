@@ -1,3 +1,4 @@
+from distutils.log import error
 from flask import Flask, render_template, request, redirect, jsonify, abort
 from databases import Database
 from dotenv import load_dotenv
@@ -14,7 +15,6 @@ from queue import Queue
 import concurrent.futures
 import os
 from dotenv import load_dotenv
-
 
 load_dotenv()
 
@@ -238,19 +238,22 @@ async def implementCheckHealth(obj: dict, time):
         print("finish ", obj[0])
 
 
-def wrapper(coro):
+def wrapper(coro, loop):
     # asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    loop = asyncio.new_event_loop()
+    # !!!!!!!!!!!!!!!!
+    # loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     return loop.run_until_complete(coro)
 
 
-def checkQueue(arr, timeT):
+def checkQueue(arr, timeT, loop):
     timeT = datetime.fromtimestamp(
         timeT).strftime('%Y-%m-%d %H:%M:%S')
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
         arr = [implementCheckHealth(obj, timeT) for obj in arr]
-        results = executor.map(wrapper, arr)
+        for task in arr:
+            executor.submit(wrapper, task, loop)
+        # results = executor.map(wrapper, arr)
         # results = [executor.submit(
         #     implementCheckHealth, obj, timeT) for obj in arr]
         print("\n")
@@ -275,15 +278,16 @@ async def fetchDB():
     return res
 
 
-def startHealthCheck():
+def startHealthCheck(loop):
     print("SHC")
     # fetch all data from db
     # create a queue for ips that are ready to check health
 
-    loop = asyncio.new_event_loop()
+    # loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     res = loop.run_until_complete(
         asyncio.gather(fetchDB()))[0]
+
     nowT = time.time()
     for Obj in res:
         res[Obj]["timeTag"] = nowT
@@ -292,7 +296,8 @@ def startHealthCheck():
     # threadList = []
     T = time.time()
 
-    checkQueueT = threading.Thread(target=checkQueue, args=(readyList, T,))
+    checkQueueT = threading.Thread(
+        target=checkQueue, args=(readyList, T, loop,))
 
     while True:
         if not delIPQueue.empty():
@@ -328,7 +333,7 @@ def startHealthCheck():
             checkQueueT.start()
             readyList = []
             checkQueueT = threading.Thread(
-                target=checkQueue, args=(readyList, T,))
+                target=checkQueue, args=(readyList, T, loop,))
 
         # pass
         # checkHealth(host=info[1], port=info[2], regi=5, count=2)
@@ -336,6 +341,7 @@ def startHealthCheck():
 
 
 if __name__ == '__main__':
-    p = threading.Thread(target=startHealthCheck)
+    loop = asyncio.get_event_loop()
+    p = threading.Thread(target=startHealthCheck, args=(loop,))
     p.start()
     main()

@@ -61,7 +61,7 @@ src="{{ url_for('static', filename='scripts/meterListPre.js') }} "
     <a class="btn p-2 mx-2 rounded  bg-gradient-to-b from-gray-300 to-gray-500" href="/meter_list?page={{ (page-1) }}">{{ page-1 }}</a>
     {% endif %}
 
-    <a class="btn p-2 rounded bg-gradient-to-b from-green-400 to-blue-500 mx-2" href="/meter_list?page={{ page }}">{{ page }}</a>
+    <a class="btn p-2 rounded bg-gradient-to-b from-indigo-400 to-blue-400 mx-2" href="/meter_list?page={{ page }}">{{ page }}</a>
     {% if (page+1)<pages %}
     <a class="btn p-2 rounded bg-gradient-to-b from-gray-300 to-gray-500 mx-2" href="/meter_list?page={{ (page+1) }}">{{ page+1 }}</a>
     <p class="mx-2 rounded">...</p>
@@ -74,8 +74,8 @@ src="{{ url_for('static', filename='scripts/meterListPre.js') }} "
 
   </div>
   
-  <div class="flex justify-end item-end bg-blue-300 rounded p-1" onclick="toggleModal()">
-    <img class="float-left" src="{{ url_for('static', filename='img/search.png') }}" width="20" height="20"></img>
+  <div class="flex justify-end item-end bg-indigo-300 rounded p-1" onclick="toggleModal()">
+    <img class="float-left" src="{{ url_for('static', filename='img/search.png') }}" width="24" height="24"></img>
   </div>
 </div>
 {% endblock content%}
