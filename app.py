@@ -53,6 +53,7 @@ async def index():
             newIPProfile.append(retID)
             newIPProfile.append(ip)
             newIPProfile.append(port)
+            print(newIPProfile)
             newIPQueue.put(newIPProfile)
 
         return redirect("/")
@@ -236,20 +237,8 @@ async def implementCheckHealth(obj: dict):
 
         await db.execute(query=query, values={"meter_id": obj[0], "content": json.dumps({"health": isHealth})})
         print("finish ", obj[0])
+    # need to return True or else it will only run the first in the array
     return True
-
-
-# def wrapper(loop, ip):
-#     asyncio.set_event_loop(loop)
-#     print("doing: ", ip)
-#     # task = loop.create_task(implementCheckHealth(ip))
-#     loop.run_until_complete(ip)
-
-# def wrapper(loop, ip):
-#     asyncio.set_event_loop(loop)
-#     print("wrapper: ", ip)
-#     task = loop.create_task(implementCheckHealth(ip))
-#     loop.run_until_complete(task)
 
 
 def checkQueue(arr, loop):
@@ -260,38 +249,6 @@ def checkQueue(arr, loop):
         print(ips)
         # loop.run_until_complete(implementCheckHealth(ips))
         asyncio.run(implementCheckHealth(ips))
-
-
-# def checkQueue(arr, loop):
-#     asyncio.set_event_loop(loop=loop)
-#     a = asyncio.gather(*[implementCheckHealth(obj) for obj in arr])
-#     loop.run_until_complete(a)
-
-
-# def checkQueue(arr, loop):
-#     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-
-#         arr = [implementCheckHealth(obj) for obj in arr]
-#         print(arr)
-#         for task in arr:
-#             executor.submit(wrapper, loop, task)
-    # results = executor.map(wrapper, arr)
-    # results = [executor.submit(
-    #     implementCheckHealth, obj) for obj in arr]
-
-
-# def checkQueue(arr, timeT, loop):
-#     timeT = datetime.fromtimestamp(
-#         timeT).strftime('%Y-%m-%d %H:%M:%S')
-#     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-
-#         arr = [implementCheckHealth(obj, timeT) for obj in arr]
-#         for task in arr:
-#             print(task)
-#             executor.submit(wrapper, task, loop)
-    # results = executor.map(wrapper, arr)
-    # results = [executor.submit(
-    #     implementCheckHealth, obj, timeT) for obj in arr]
 
 
 async def fetchDB():
@@ -355,7 +312,8 @@ def startHealthCheck(loop):
                 if not newIP[0] in res:
                     res[newIP[0]] = {}
                     res[newIP[0]]["lists"] = []
-                    res[newIP[0]]["lists"].append([newIP[1], newIP[2]])
+                    res[newIP[0]]["lists"].append(
+                        [newIP[1], newIP[2], newIP[3]])
                     res[newIP[0]]["timeTag"] = nowT
 
                 else:
