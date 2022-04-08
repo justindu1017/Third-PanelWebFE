@@ -224,21 +224,21 @@ def checkHealth(host: str, port: str, regi: int = 1, count: int = 0):
 
 
 async def implementCheckHealth(obj: dict):
-    # r = checkHealth(host=obj[1], port=obj[2], regi=5, count=2)
+    r = checkHealth(host=obj[1], port=obj[2], regi=5, count=2)
+    async with database as db:
+        query = "insert into health_check_log (meter_id, content) VALUES (:meter_id, :content);"
 
-    # async with database as db:
-    #     query = "insert into health_check_log (meter_id, content) VALUES (:meter_id, :content);"
+        isHealth = 0
+        if r:
+            # if True:
+            isHealth = 1
 
-    #     isHealth = 0
-    #     # if r:
-    #     if True:
-    #         isHealth = 1
-
-    #     await db.execute(query=query, values={"meter_id": obj[0], "content": json.dumps({"health": isHealth})})
-    print("finish ", obj[0], "  ,  ",
-          datetime.now().strftime("%H:%M:%S")
-          )
-    return
+        await db.execute(query=query, values={"meter_id": obj[0], "content": json.dumps({"health": isHealth})})
+        print("finish ", obj[0], "  ,  ",
+              datetime.now().strftime("%H:%M:%S")
+              )
+    # need to return True or else it will only run the first in the array
+    return True
 
 
 def checkQueue(arr, loop: asyncio.windows_events.ProactorEventLoop):
@@ -247,6 +247,10 @@ def checkQueue(arr, loop: asyncio.windows_events.ProactorEventLoop):
     for ips in arr:
         task = loop.create_task(implementCheckHealth(ips))
         loop.run_until_complete(task)
+        # print(type(loop))
+        # loop(implementCheckHealth(ips))
+
+        # asyncio.run(implementCheckHealth(ips))
 
 
 async def fetchDB():
@@ -275,55 +279,62 @@ def startHealthCheck(loop: asyncio.windows_events.ProactorEventLoop):
     # fetch all data from db
     # create a queue for ips that are ready to check health
 
+    # loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
+    # loop.run_forever()
     res = loop.run_until_complete(
         asyncio.gather(fetchDB()))[0]
-
+    # res = asyncio.run_coroutine_threadsafe(fetchDB(), loop=loop)
+    # print(res.result())
     print("is: ", res)
     nowT = time.time()
     for Obj in res:
         res[Obj]["timeTag"] = nowT
 
     readyList = []
+    # threadList = []
+    T = time.time()
+
+    # checkQueueT = threading.Thread(
+    #     target=checkQueue, args=(readyList, loop,))
 
     while True:
-        T = time.time()
-        for el in res:
-            if (T - int(res[el]["timeTag"])) >= int(el):
-                readyList += res[el]["lists"]
-                res[el]["timeTag"] = T
-        if readyList:
-            for ips in readyList:
-                # task = loop.create_task(implementCheckHealth(ips))
-                loop.run_until_complete(implementCheckHealth(ips))
-        readyList = []
         # for ip waiting for delete
         if not delIPQueue.empty():
-            print("will del")
             while not delIPQueue.empty():
                 delIP = delIPQueue.get()
                 # print("delIP is ", delIP)
                 for i, li in enumerate(res[str(delIP[0])]["lists"]):
                     # print(li)
                     if delIP[1] in li:
-                        print("DEL: ", res[str(delIP[0])]["lists"][i])
+                        # print("DEL: ", res[str(delIP[0])]["lists"][i])
                         del res[str(delIP[0])]["lists"][i]
-            print("is: ", res)
 
         # for ip that is newly added
         if not newIPQueue.empty():
             while not newIPQueue.empty():
                 newIP = newIPQueue.get()
-                if not str(newIP[0]) in res:
-                    res[str(newIP[0])] = {}
-                    res[str(newIP[0])]["lists"] = []
-                    res[str(newIP[0])]["lists"].append(
+                if not newIP[0] in res:
+                    res[newIP[0]] = {}
+                    res[newIP[0]]["lists"] = []
+                    res[newIP[0]]["lists"].append(
                         [newIP[1], newIP[2], newIP[3]])
-                    res[str(newIP[0])]["timeTag"] = nowT
+                    res[newIP[0]]["timeTag"] = nowT
 
                 else:
-                    res[str(newIP[0])]["lists"].append([newIP[1], newIP[2]])
-                    res[str(newIP[0])]["timeTag"] = nowT
+                    res[newIP[0]]["lists"].append([newIP[1], newIP[2]])
+                    res[newIP[0]]["timeTag"] = nowT
+
+        T = time.time()
+        for el in res:
+            if (T - int(res[el]["timeTag"])) >= int(el):
+
+                readyList += res[el]["lists"]
+                res[el]["timeTag"] = T
+        if readyList:
+            for ips in readyList:
+                # task = loop.create_task(implementCheckHealth(ips))
+                loop.run_until_complete(implementCheckHealth(ips))
 
 
 if __name__ == '__main__':
