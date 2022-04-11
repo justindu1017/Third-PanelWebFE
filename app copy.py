@@ -1,5 +1,4 @@
 from __future__ import print_function
-from calendar import c
 from distutils.log import error
 from flask import Flask, render_template, request, redirect, jsonify, abort
 from databases import Database
@@ -16,8 +15,6 @@ import threading
 from queue import Queue
 import os
 from dotenv import load_dotenv
-from async_modbus import AsyncTCPClient
-
 
 load_dotenv()
 
@@ -204,54 +201,51 @@ def main():
     app.run(host='0.0.0.0')
 
 
-async def conn(ips):
-    print(f'start {ips[0]} at {datetime.now().strftime("%H:%M:%S")}')
-    try:
-        # reader, writer = await asyncio.open_connection(ips[1], ips[2])
-        reader, writer = await asyncio.open_connection('192.168.1.180', '502')
-        client = AsyncTCPClient((reader, writer))
-        reply = await client.read_holding_registers(slave_id=1, starting_address=5, quantity=2)
-        print("rr is ", reply)
-        # await client.close()
-        writer.close()
-        async with database as db:
-            await db.connect()
-            query = "insert into health_check_log (meter_id, content) VALUES (:meter_id, :content);"
-
-            isHealth = 0
-            if not len(reply) == 0:
-                # if True:
-                isHealth = 1
-
-            await db.execute(query=query, values={"meter_id": ips[0], "content": json.dumps({"health": isHealth})})
-
-        print(f'finish {ips[0]} at {datetime.now().strftime("%H:%M:%S")}')
-    except Exception as e:
-        print(e)
-        print(
-            f'connect failed {ips[0]} at {datetime.now().strftime("%H:%M:%S")}')
-# async def conn(ips):
-#     print("getting ", ips[0])
-    # try:
-    #     reader, writer = await asyncio.open_connection(ips[1], ips[2])
-    #     client = AsyncTCPClient((reader, writer))
-    #     reply = await client.read_holding_registers(slave_id=1, starting_address=1, quantity=len(5))
-    #     await client.close()
-    #     if reply:
-    #         return True
-    #     else:
-    #         return False
-    # except:
-    #     print("Failed")
-    #     return False
-
-
 def toJson(arr):
     tmp = []
     tmp.append(arr[0])
     tmp.append(arr[1])
     tmp.append(arr[2])
     return tmp
+
+
+async def checkHealth(host: str, port: str, regi: int = 1, count: int = 0):
+    client = Client(host=host, port=port)
+    # client = Client(host='192.168.1.180', port='502')
+
+    try:
+
+        r = get_registers_by_address(client=client, address=regi, count=count)
+        return r
+        # return True
+    except ConnectionException as e:
+        return None
+
+
+async def implementCheckHealth(obj: dict):
+    r = await checkHealth(host=obj[1], port=obj[2], regi=5, count=2)
+    print("finish ", obj[0], "  ,  ",
+          datetime.now().strftime("%H:%M:%S")
+          )
+    async with database as db:
+        query = "insert into health_check_log (meter_id, content) VALUES (:meter_id, :content);"
+
+        isHealth = 0
+        if r:
+            # if True:
+            isHealth = 1
+
+        await db.execute(query=query, values={"meter_id": obj[0], "content": json.dumps({"health": isHealth})})
+
+    return
+
+
+def checkQueue(arr, loop: asyncio.windows_events.ProactorEventLoop):
+    asyncio.set_event_loop(loop)
+
+    for ips in arr:
+        task = loop.create_task(implementCheckHealth(ips))
+        loop.run_until_complete(task)
 
 
 async def fetchDB():
@@ -275,11 +269,15 @@ async def fetchDB():
     return res
 
 
-async def startHealthCheck(loop: asyncio.windows_events.ProactorEventLoop, res):
+def startHealthCheck(loop: asyncio.windows_events.ProactorEventLoop):
     print("SHC")
 
     # fetch all data from db
     # create a queue for ips that are ready to check health
+
+    asyncio.set_event_loop(loop)
+    res = loop.run_until_complete(
+        asyncio.gather(fetchDB()))[0]
 
     # {'_second': {'lists': [[_id, '_ip', '_port'],....]},....}
 
@@ -296,10 +294,9 @@ async def startHealthCheck(loop: asyncio.windows_events.ProactorEventLoop, res):
                 readyList += res[el]["lists"]
                 res[el]["timeTag"] = T
         if readyList:
-            print(readyList)
-            asyncio.gather(*[conn(ips) for ips in readyList])
-            # ???????????
-            await asyncio.sleep(0.1)
+            for ips in readyList:
+                # task = loop.create_task(implementCheckHealth(ips))
+                loop.run_until_complete(implementCheckHealth(ips))
         readyList = []
         # for ip waiting for delete
         if not delIPQueue.empty():
@@ -312,6 +309,7 @@ async def startHealthCheck(loop: asyncio.windows_events.ProactorEventLoop, res):
                     if delIP[1] in li:
                         print("DEL: ", res[str(delIP[0])]["lists"][i])
                         del res[str(delIP[0])]["lists"][i]
+            print("is: ", res)
 
         # for ip that is newly added
         if not newIPQueue.empty():
@@ -329,16 +327,9 @@ async def startHealthCheck(loop: asyncio.windows_events.ProactorEventLoop, res):
                     res[str(newIP[0])]["timeTag"] = nowT
 
 
-def startHealthCheckWrapper(loop: asyncio.windows_events.ProactorEventLoop):
-    asyncio.set_event_loop(loop=loop)
-    res = loop.run_until_complete(
-        asyncio.gather(fetchDB()))[0]
-    loop.run_until_complete(startHealthCheck(loop, res))
-
-
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
-    p = threading.Thread(target=startHealthCheckWrapper, args=(loop,))
+    p = threading.Thread(target=startHealthCheck, args=(loop,))
     p.start()
     loop.call_soon_threadsafe(
         main()
