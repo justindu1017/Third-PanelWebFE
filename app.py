@@ -207,11 +207,10 @@ def main():
 async def conn(ips):
     print(f'start {ips[0]} at {datetime.now().strftime("%H:%M:%S")}')
     try:
-        # reader, writer = await asyncio.open_connection(ips[1], ips[2])
-        reader, writer = await asyncio.open_connection('192.168.1.180', '502')
+        reader, writer = await asyncio.open_connection(ips[1], ips[2])
+        # reader, writer = await asyncio.open_connection('192.168.1.180', '502')
         client = AsyncTCPClient((reader, writer))
         reply = await client.read_holding_registers(slave_id=1, starting_address=5, quantity=2)
-        print("rr is ", reply)
         # await client.close()
         writer.close()
         async with database as db:
@@ -224,12 +223,14 @@ async def conn(ips):
                 isHealth = 1
 
             await db.execute(query=query, values={"meter_id": ips[0], "content": json.dumps({"health": isHealth})})
-
+            await db.disconnect()
         print(f'finish {ips[0]} at {datetime.now().strftime("%H:%M:%S")}')
     except Exception as e:
-        print(e)
+        print("e: ", e)
         print(
             f'connect failed {ips[0]} at {datetime.now().strftime("%H:%M:%S")}')
+
+
 # async def conn(ips):
 #     print("getting ", ips[0])
     # try:
