@@ -13,7 +13,6 @@ from get_data import get_registers_by_address
 from pymodbus.exceptions import ConnectionException
 import threading
 from queue import Queue
-import concurrent.futures
 import os
 from dotenv import load_dotenv
 
@@ -210,9 +209,9 @@ def toJson(arr):
     return tmp
 
 
-def checkHealth(host: str, port: str, regi: int = 1, count: int = 0):
-    # client = Client(host=host, port=port)
-    client = Client(host='192.168.1.180', port='502')
+async def checkHealth(host: str, port: str, regi: int = 1, count: int = 0):
+    client = Client(host=host, port=port)
+    # client = Client(host='192.168.1.180', port='502')
 
     try:
 
@@ -224,20 +223,20 @@ def checkHealth(host: str, port: str, regi: int = 1, count: int = 0):
 
 
 async def implementCheckHealth(obj: dict):
-    # r = checkHealth(host=obj[1], port=obj[2], regi=5, count=2)
-
-    # async with database as db:
-    #     query = "insert into health_check_log (meter_id, content) VALUES (:meter_id, :content);"
-
-    #     isHealth = 0
-    #     # if r:
-    #     if True:
-    #         isHealth = 1
-
-    #     await db.execute(query=query, values={"meter_id": obj[0], "content": json.dumps({"health": isHealth})})
+    r = await checkHealth(host=obj[1], port=obj[2], regi=5, count=2)
     print("finish ", obj[0], "  ,  ",
           datetime.now().strftime("%H:%M:%S")
           )
+    async with database as db:
+        query = "insert into health_check_log (meter_id, content) VALUES (:meter_id, :content);"
+
+        isHealth = 0
+        if r:
+            # if True:
+            isHealth = 1
+
+        await db.execute(query=query, values={"meter_id": obj[0], "content": json.dumps({"health": isHealth})})
+
     return
 
 
@@ -272,6 +271,7 @@ async def fetchDB():
 
 def startHealthCheck(loop: asyncio.windows_events.ProactorEventLoop):
     print("SHC")
+
     # fetch all data from db
     # create a queue for ips that are ready to check health
 
@@ -279,7 +279,8 @@ def startHealthCheck(loop: asyncio.windows_events.ProactorEventLoop):
     res = loop.run_until_complete(
         asyncio.gather(fetchDB()))[0]
 
-    print("is: ", res)
+    # {'_second': {'lists': [[_id, '_ip', '_port'],....]},....}
+
     nowT = time.time()
     for Obj in res:
         res[Obj]["timeTag"] = nowT
