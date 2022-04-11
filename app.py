@@ -48,6 +48,8 @@ async def index():
         values = {"ip": ip, "port": port,
                   "meter_type": meterType, "health_check": health_check}
         async with database as db:
+            await db.connect()
+
             query = "INSERT INTO meters(ip, port, meter_type, health_check) VALUES (:ip, :port, :meter_type, :health_check); select LAST_INSERT_ID(); "
             retID = await db.execute(query=query, values=values)
             newIPProfile = []
@@ -57,6 +59,7 @@ async def index():
             newIPProfile.append(port)
             print(newIPProfile)
             newIPQueue.put(newIPProfile)
+            await db.disconnect()
 
         return redirect("/")
 
@@ -79,13 +82,15 @@ async def get_meter_list():
         if page <= 0:
             return redirect("/meter_list")
         async with database as db:
+            await db.connect()
+
             # search for pages
             values = {"off": int((page-1)*40)}
             getPageQuery = "SELECT CEILING(count(id)/40) FROM `meters`;"
             query = "SELECT * FROM `meters` LIMIT 40 OFFSET :off;"
             pages = await db.fetch_all(query=getPageQuery)
             infos = await db.fetch_all(query=query, values=values)
-            # await db.disconnect()
+            await db.disconnect()
         if page > pages[0][0]+1:
             return redirect("/meter_list?page="+str(pages[0][0]+1))
         while(not infos and not page == 1):
@@ -171,6 +176,8 @@ async def get_meter_list():
                 queryStr += " and "
 
         async with database as db:
+            await db.connect()
+
             # search for pages
             getPageQuery = "SELECT FLOOR(count(id)/40) FROM `meters` where " + \
                 queryStr+";"
@@ -180,7 +187,7 @@ async def get_meter_list():
 
             infos = await db.fetch_all(query=query, values=paramValues)
 
-            # await db.disconnect()
+            await db.disconnect()
 
         return render_template("nav.html", pages=pages[0][0]+1, infos=infos, page=page)
 
@@ -189,11 +196,13 @@ async def get_meter_list():
 async def delID(id):
 
     async with database as db:
+        await db.connect()
+
         getTime = "select health_check from meters WHERE id = :id;"
         query = "DELETE FROM meters WHERE id = :id;"
         time_for_del = await db.fetch_one(query=getTime, values={"id": id})
         await db.execute(query=query, values={"id": id})
-        # await db.disconnect()
+        await db.disconnect()
 
         delIPQueue.put([time_for_del[0], int(id)])
     return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
@@ -207,8 +216,8 @@ def main():
 async def conn(ips):
     print(f'start {ips[0]} at {datetime.now().strftime("%H:%M:%S")}')
     try:
-        reader, writer = await asyncio.open_connection(ips[1], ips[2])
-        # reader, writer = await asyncio.open_connection('192.168.1.180', '502')
+        # reader, writer = await asyncio.open_connection(ips[1], ips[2])
+        reader, writer = await asyncio.open_connection('192.168.1.180', '502')
         client = AsyncTCPClient((reader, writer))
         reply = await client.read_holding_registers(slave_id=1, starting_address=5, quantity=2)
         # await client.close()
@@ -257,6 +266,7 @@ def toJson(arr):
 
 async def fetchDB():
     async with database as db:
+        await db.connect()
         res = {}
         # search for pages
         query = "SELECT health_check FROM `meters` GROUP by health_check;"
@@ -272,7 +282,7 @@ async def fetchDB():
             obj[str(health_check[0])]["lists"] = results
             res = {**res, **obj}
 
-        # await db.disconnect()
+        await db.disconnect()
     return res
 
 
